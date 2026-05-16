@@ -1,0 +1,43 @@
+{
+  "collectionName": "components_quote_custom_designs",
+  "info": {
+    "displayName": "Custom Design",
+    "description": "Custom design upload in a quote request"
+  },
+  "attributes": {
+    "file": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images", "files"]
+    },
+    "designName": {
+      "type": "string"
+    },
+    "productType": {
+      "type": "enumeration",
+      "enum": ["printing_block", "logo_block", "wall_plate", "pichwai", "other"]
+    },
+    "width": {
+      "type": "decimal"
+    },
+    "height": {
+      "type": "decimal"
+    },
+    "unit": {
+      "type": "enumeration",
+      "enum": ["inch", "cm"]
+    },
+    "colorCount": {
+      "type": "enumeration",
+      "enum": ["single", "two", "three", "multicolor", "not_sure"]
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}

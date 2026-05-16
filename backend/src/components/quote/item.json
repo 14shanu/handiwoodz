@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_quote_items",
+  "info": {
+    "displayName": "Quote Item",
+    "description": "Catalog item in a quote request"
+  },
+  "attributes": {
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "selectedSize": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "integer",
+      "required": true,
+      "min": 1
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "collectionType",
+  "collectionName": "quote_requests",
+  "info": {
+    "singularName": "quote-request",
+    "pluralName": "quote-requests",
+    "displayName": "Quote Request",
+    "description": "Customer quotation requests"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "quoteNumber": {
+      "type": "string",
+      "unique": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["new", "under_review", "need_more_info", "quote_sent", "approved", "in_production", "dispatched", "closed"],
+      "default": "new"
+    },
+    "customerName": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "whatsapp": {
+      "type": "string",
+      "required": true
+    },
+    "country": {
+      "type": "string"
+    },
+    "companyName": {
+      "type": "string"
+    },
+    "generalNotes": {
+      "type": "richtext"
+    },
+    "catalogItems": {
+      "type": "component",
+      "repeatable": true,
+      "component": "quote.item"
+    },
+    "customDesigns": {
+      "type": "component",
+      "repeatable": true,
+      "component": "quote.custom-design"
+    },
+    "internalNotes": {
+      "type": "richtext",
+      "private": true
+    },
+    "quotedAmount": {
+      "type": "decimal"
+    },
+    "leadTime": {
+      "type": "string"
+    },
+    "paymentTerms": {
+      "type": "string"
+    },
+    "shippingNotes": {
+      "type": "string"
+    }
+  }
+}

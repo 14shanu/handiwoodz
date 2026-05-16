@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_product_filters",
+  "info": {
+    "displayName": "Filter",
+    "description": "Product filter attributes"
+  },
+  "attributes": {
+    "filterName": {
+      "type": "enumeration",
+      "enum": ["size", "style", "woodType", "colorCount", "craftType", "shape", "theme"],
+      "required": true
+    },
+    "filterValue": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
