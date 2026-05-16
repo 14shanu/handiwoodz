@@ -2,15 +2,15 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import QuoteContactForm from "./quote-contact-form";
 
-const mockOnSubmit = jest.fn();
+const mockOnValidChange = jest.fn();
 
 beforeEach(() => {
-  mockOnSubmit.mockClear();
+  mockOnValidChange.mockClear();
 });
 
 describe("QuoteContactForm", () => {
   it("renders all form fields", () => {
-    render(<QuoteContactForm onSubmit={mockOnSubmit} />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     expect(screen.getByLabelText(/Full Name/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Email Address/)).toBeInTheDocument();
     expect(screen.getByLabelText(/WhatsApp/)).toBeInTheDocument();
@@ -21,7 +21,7 @@ describe("QuoteContactForm", () => {
 
   it("shows error on blur when required field is empty", async () => {
     const user = userEvent.setup();
-    render(<QuoteContactForm onSubmit={mockOnSubmit} />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     const nameInput = screen.getByLabelText(/Full Name/);
     await user.click(nameInput);
     await user.tab();
@@ -30,7 +30,7 @@ describe("QuoteContactForm", () => {
 
   it("shows error for invalid email on blur", async () => {
     const user = userEvent.setup();
-    render(<QuoteContactForm onSubmit={mockOnSubmit} />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     const emailInput = screen.getByLabelText(/Email Address/);
     await user.type(emailInput, "not-valid");
     await user.tab();
@@ -39,7 +39,7 @@ describe("QuoteContactForm", () => {
 
   it("clears error when valid value is entered", async () => {
     const user = userEvent.setup();
-    render(<QuoteContactForm onSubmit={mockOnSubmit} />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     const emailInput = screen.getByLabelText(/Email Address/);
     await user.type(emailInput, "bad");
     await user.tab();
@@ -49,24 +49,22 @@ describe("QuoteContactForm", () => {
     expect(screen.queryByText(/valid email/)).not.toBeInTheDocument();
   });
 
-  it("does not call onSubmit with invalid data", async () => {
+  it("does not call onValidChange with valid data when form is invalid", async () => {
     const user = userEvent.setup();
-    render(<QuoteContactForm onSubmit={mockOnSubmit} />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     const form = screen.getByLabelText(/Full Name/).closest("form")!;
     await user.type(screen.getByLabelText(/Full Name/), "A");
     form.dispatchEvent(new Event("submit", { bubbles: true }));
-    expect(mockOnSubmit).not.toHaveBeenCalled();
+    expect(mockOnValidChange).toHaveBeenCalledWith(null);
   });
 
-  it("calls onSubmit with valid data", async () => {
+  it("calls onValidChange with data when form becomes valid", async () => {
     const user = userEvent.setup();
-    render(<QuoteContactForm onSubmit={mockOnSubmit} />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     await user.type(screen.getByLabelText(/Full Name/), "John Doe");
     await user.type(screen.getByLabelText(/Email Address/), "john@test.com");
     await user.type(screen.getByLabelText(/WhatsApp/), "+91 9876543210");
-    const form = screen.getByLabelText(/Full Name/).closest("form")!;
-    form.dispatchEvent(new Event("submit", { bubbles: true }));
-    expect(mockOnSubmit).toHaveBeenCalledWith(
+    expect(mockOnValidChange).toHaveBeenCalledWith(
       expect.objectContaining({
         customerName: "John Doe",
         email: "john@test.com",
@@ -76,7 +74,7 @@ describe("QuoteContactForm", () => {
   });
 
   it("disables all fields when disabled prop is true", () => {
-    render(<QuoteContactForm onSubmit={mockOnSubmit} disabled />);
+    render(<QuoteContactForm onValidChange={mockOnValidChange} disabled />);
     const inputs = screen.getAllByRole("textbox");
     inputs.forEach((input) => {
       expect(input).toBeDisabled();

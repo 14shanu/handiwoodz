@@ -177,7 +177,7 @@ export default function QuoteBasketPage() {
                 {quoteBasketContent.form.heading}
               </h2>
               <QuoteContactForm
-                onSubmit={(data) => setFormData(data)}
+                onValidChange={(data) => setFormData(data)}
                 disabled={isSubmitting}
               />
             </section>

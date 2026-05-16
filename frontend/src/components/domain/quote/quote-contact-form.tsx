@@ -5,13 +5,13 @@ import { quoteFormSchema, QuoteFormData } from "@/lib/schemas";
 import { quoteBasketContent } from "@/lib/content";
 
 interface QuoteContactFormProps {
-  onSubmit: (data: QuoteFormData) => void;
+  onValidChange: (data: QuoteFormData | null) => void;
   disabled?: boolean;
 }
 
 type FormErrors = Partial<Record<keyof QuoteFormData, string>>;
 
-export default function QuoteContactForm({ onSubmit, disabled }: QuoteContactFormProps) {
+export default function QuoteContactForm({ onValidChange, disabled }: QuoteContactFormProps) {
   const [formData, setFormData] = useState<QuoteFormData>({
     customerName: "",
     email: "",
@@ -34,11 +34,14 @@ export default function QuoteContactForm({ onSubmit, disabled }: QuoteContactFor
   };
 
   const handleChange = (field: keyof QuoteFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    const updated = { ...formData, [field]: value };
+    setFormData(updated);
     if (touched[field]) {
       const error = validateField(field, value);
       setErrors((prev) => ({ ...prev, [field]: error }));
     }
+    const result = quoteFormSchema.safeParse(updated);
+    onValidChange(result.success ? result.data : null);
   };
 
   const handleBlur = (field: keyof QuoteFormData) => {
@@ -67,9 +70,10 @@ export default function QuoteContactForm({ onSubmit, disabled }: QuoteContactFor
         companyName: true,
         generalNotes: true,
       });
+      onValidChange(null);
       return;
     }
-    onSubmit(result.data);
+    onValidChange(result.data);
   };
 
   const content = quoteBasketContent.form;
