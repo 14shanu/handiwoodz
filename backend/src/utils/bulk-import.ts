@@ -45,7 +45,6 @@ async function findMediaFile(
 
   const trimmed = reference.trim();
 
-  // Try by exact URL
   if (trimmed.startsWith('http')) {
     const file = await strapi.db.query('plugin::upload.file').findOne({
       where: { url: trimmed },
@@ -54,7 +53,6 @@ async function findMediaFile(
     if (file) return file.id;
   }
 
-  // Try by hash (Cloudinary public_id with slashes replaced)
   const hash = trimmed.replace(/\//g, '_');
   const byHash = await strapi.db.query('plugin::upload.file').findOne({
     where: { hash },
@@ -62,7 +60,6 @@ async function findMediaFile(
   });
   if (byHash) return byHash.id;
 
-  // Try by filename
   const byName = await strapi.db.query('plugin::upload.file').findOne({
     where: { name: { $contains: trimmed } },
     select: ['id'],
@@ -72,14 +69,16 @@ async function findMediaFile(
   return null;
 }
 
-function parseFilters(filtersStr: string): Array<{ filterName: string; filterValue: string }> {
+function parseFilters(filtersStr: string): Array<{ filterName: "size" | "style" | "woodType" | "colorCount" | "craftType" | "shape" | "theme"; filterValue: string }> {
   if (!filtersStr || !filtersStr.trim()) return [];
 
-  // Format: "size:4x4,woodType:teak,shape:square"
+  const validNames = ['size', 'style', 'woodType', 'colorCount', 'craftType', 'shape', 'theme'] as const;
+  type FilterName = typeof validNames[number];
+
   return filtersStr.split(',').map((pair) => {
     const [filterName, filterValue] = pair.split(':').map((s) => s.trim());
-    return { filterName, filterValue };
-  }).filter((f) => f.filterName && f.filterValue);
+    return { filterName: filterName as FilterName, filterValue };
+  }).filter((f) => f.filterName && f.filterValue && validNames.includes(f.filterName as FilterName));
 }
 
 export function parseExcelFile(buffer: Buffer): {
@@ -120,11 +119,12 @@ export async function importCatalogData(
     }
 
     const slug = generateSlug(row.name);
-    const existing = await strapi.db.query('api::category.category').findOne({
-      where: { slug },
+    const existing = await strapi.documents('api::category.category').findMany({
+      filters: { slug },
+      limit: 1,
     });
 
-    if (existing) {
+    if (existing.length > 0) {
       result.categories.skipped++;
       continue;
     }
@@ -132,14 +132,14 @@ export async function importCatalogData(
     try {
       const imageId = row.image ? await findMediaFile(strapi, row.image) : null;
 
-      await strapi.db.query('api::category.category').create({
+      await strapi.documents('api::category.category').create({
         data: {
           name: row.name.trim(),
           slug,
           description: row.description?.trim() || null,
           ...(imageId && { image: imageId }),
-          publishedAt: new Date(),
         },
+        status: 'published',
       });
       result.categories.created++;
     } catch (error) {
@@ -156,34 +156,35 @@ export async function importCatalogData(
     }
 
     const slug = generateSlug(row.name);
-    const existing = await strapi.db.query('api::subcategory.subcategory').findOne({
-      where: { slug },
+    const existing = await strapi.documents('api::subcategory.subcategory').findMany({
+      filters: { slug },
+      limit: 1,
     });
 
-    if (existing) {
+    if (existing.length > 0) {
       result.subcategories.skipped++;
       continue;
     }
 
     const categorySlug = generateSlug(row.category);
-    const category = await strapi.db.query('api::category.category').findOne({
-      where: { slug: categorySlug },
-      select: ['id'],
+    const categories = await strapi.documents('api::category.category').findMany({
+      filters: { slug: categorySlug },
+      limit: 1,
     });
 
-    if (!category) {
+    if (categories.length === 0) {
       result.subcategories.errors.push(`Category "${row.category}" not found for subcategory "${row.name}"`);
       continue;
     }
 
     try {
-      await strapi.db.query('api::subcategory.subcategory').create({
+      await strapi.documents('api::subcategory.subcategory').create({
         data: {
           name: row.name.trim(),
           slug,
-          category: category.id,
-          publishedAt: new Date(),
+          category: categories[0].documentId,
         },
+        status: 'published',
       });
       result.subcategories.created++;
     } catch (error) {
@@ -200,33 +201,32 @@ export async function importCatalogData(
     }
 
     const slug = generateSlug(row.name);
-    const existing = await strapi.db.query('api::product.product').findOne({
-      where: { slug },
+    const existing = await strapi.documents('api::product.product').findMany({
+      filters: { slug },
+      limit: 1,
     });
 
-    if (existing) {
+    if (existing.length > 0) {
       result.products.skipped++;
       continue;
     }
 
     const subcategorySlug = generateSlug(row.subcategory);
-    const subcategory = await strapi.db.query('api::subcategory.subcategory').findOne({
-      where: { slug: subcategorySlug },
-      select: ['id'],
+    const subcategories = await strapi.documents('api::subcategory.subcategory').findMany({
+      filters: { slug: subcategorySlug },
+      limit: 1,
     });
 
-    if (!subcategory) {
+    if (subcategories.length === 0) {
       result.products.errors.push(`Subcategory "${row.subcategory}" not found for product "${row.name}"`);
       continue;
     }
 
     try {
-      // Parse sizeOptions: "3x3 inch, 4x4 inch, 6x6 inch"
       const sizeOptions = row.sizeOptions
         ? row.sizeOptions.split(',').map((s) => s.trim())
         : [];
 
-      // Parse images: "image1.jpg, image2.jpg" or "url1, url2"
       const imageIds: number[] = [];
       if (row.images) {
         const imageRefs = row.images.split(',').map((s) => s.trim());
@@ -237,41 +237,22 @@ export async function importCatalogData(
       }
 
       const filters = row.filters ? parseFilters(row.filters) : [];
-
       const isFeatured = row.featured === true || row.featured === 'true' || row.featured === 'yes';
 
-      await strapi.db.query('api::product.product').create({
+      await strapi.documents('api::product.product').create({
         data: {
           name: row.name.trim(),
           slug,
           shortDescription: row.shortDescription?.trim() || null,
-          subcategory: subcategory.id,
+          subcategory: subcategories[0].documentId,
           sizeOptions: sizeOptions.length > 0 ? sizeOptions : null,
           minQuantity: row.minQuantity || 1,
           featured: isFeatured,
           ...(imageIds.length > 0 && { images: imageIds }),
-          publishedAt: new Date(),
+          ...(filters.length > 0 && { filters }),
         },
+        status: 'published',
       });
-
-      // Add filters as components if any
-      if (filters.length > 0) {
-        const product = await strapi.db.query('api::product.product').findOne({
-          where: { slug },
-          select: ['id'],
-        });
-
-        if (product) {
-          for (const filter of filters) {
-            await strapi.db.query('product.filter').create({
-              data: {
-                filterName: filter.filterName,
-                filterValue: filter.filterValue,
-              },
-            });
-          }
-        }
-      }
 
       result.products.created++;
     } catch (error) {

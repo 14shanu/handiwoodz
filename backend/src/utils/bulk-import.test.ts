@@ -53,31 +53,38 @@ describe('parseExcelFile', () => {
 });
 
 describe('importCatalogData', () => {
-  const mockFindOne = jest.fn();
+  const mockFindMany = jest.fn();
   const mockCreate = jest.fn();
+  const mockDbFindOne = jest.fn();
 
   const mockStrapi = {
+    documents: jest.fn().mockReturnValue({
+      findMany: mockFindMany,
+      create: mockCreate,
+    }),
     db: {
       query: jest.fn().mockReturnValue({
-        findOne: mockFindOne,
-        create: mockCreate,
+        findOne: mockDbFindOne,
       }),
     },
   } as unknown as Parameters<typeof importCatalogData>[0];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (mockStrapi.db.query as jest.Mock).mockReturnValue({
-      findOne: mockFindOne,
+    (mockStrapi.documents as unknown as jest.Mock).mockReturnValue({
+      findMany: mockFindMany,
       create: mockCreate,
+    });
+    (mockStrapi.db.query as jest.Mock).mockReturnValue({
+      findOne: mockDbFindOne,
     });
   });
 
   it('creates new categories and skips existing ones', async () => {
-    mockFindOne
-      .mockResolvedValueOnce(null) // first category doesn't exist
-      .mockResolvedValueOnce({ id: 1, slug: 'existing' }); // second exists
-    mockCreate.mockResolvedValue({ id: 1 });
+    mockFindMany
+      .mockResolvedValueOnce([]) // first category doesn't exist
+      .mockResolvedValueOnce([{ id: 1, documentId: 'doc1', slug: 'existing' }]); // second exists
+    mockCreate.mockResolvedValue({ id: 1, documentId: 'doc1' });
 
     const result = await importCatalogData(mockStrapi, {
       categories: [
@@ -104,12 +111,10 @@ describe('importCatalogData', () => {
   });
 
   it('creates subcategories linked to existing categories', async () => {
-    // Subcategory doesn't exist
-    mockFindOne
-      .mockResolvedValueOnce(null)
-      // Category lookup
-      .mockResolvedValueOnce({ id: 5 });
-    mockCreate.mockResolvedValue({ id: 1 });
+    mockFindMany
+      .mockResolvedValueOnce([]) // subcategory doesn't exist
+      .mockResolvedValueOnce([{ id: 5, documentId: 'cat-doc-1' }]); // category found
+    mockCreate.mockResolvedValue({ id: 1, documentId: 'sub-doc-1' });
 
     const result = await importCatalogData(mockStrapi, {
       categories: [],
@@ -121,9 +126,9 @@ describe('importCatalogData', () => {
   });
 
   it('reports error when subcategory references non-existent category', async () => {
-    mockFindOne
-      .mockResolvedValueOnce(null) // subcategory doesn't exist
-      .mockResolvedValueOnce(null); // category not found
+    mockFindMany
+      .mockResolvedValueOnce([]) // subcategory doesn't exist
+      .mockResolvedValueOnce([]); // category not found
 
     const result = await importCatalogData(mockStrapi, {
       categories: [],
@@ -135,10 +140,10 @@ describe('importCatalogData', () => {
   });
 
   it('creates products linked to existing subcategories', async () => {
-    mockFindOne
-      .mockResolvedValueOnce(null) // product doesn't exist
-      .mockResolvedValueOnce({ id: 3 }); // subcategory found
-    mockCreate.mockResolvedValue({ id: 1 });
+    mockFindMany
+      .mockResolvedValueOnce([]) // product doesn't exist
+      .mockResolvedValueOnce([{ id: 3, documentId: 'sub-doc-1' }]); // subcategory found
+    mockCreate.mockResolvedValue({ id: 1, documentId: 'prod-doc-1' });
 
     const result = await importCatalogData(mockStrapi, {
       categories: [],
@@ -150,7 +155,7 @@ describe('importCatalogData', () => {
   });
 
   it('skips existing products by slug', async () => {
-    mockFindOne.mockResolvedValueOnce({ id: 1, slug: 'existing-product' });
+    mockFindMany.mockResolvedValueOnce([{ id: 1, documentId: 'doc1', slug: 'existing-product' }]);
 
     const result = await importCatalogData(mockStrapi, {
       categories: [],
@@ -163,9 +168,9 @@ describe('importCatalogData', () => {
   });
 
   it('reports error when product references non-existent subcategory', async () => {
-    mockFindOne
-      .mockResolvedValueOnce(null) // product doesn't exist
-      .mockResolvedValueOnce(null); // subcategory not found
+    mockFindMany
+      .mockResolvedValueOnce([]) // product doesn't exist
+      .mockResolvedValueOnce([]); // subcategory not found
 
     const result = await importCatalogData(mockStrapi, {
       categories: [],
@@ -177,7 +182,7 @@ describe('importCatalogData', () => {
   });
 
   it('handles creation errors gracefully', async () => {
-    mockFindOne.mockResolvedValueOnce(null);
+    mockFindMany.mockResolvedValueOnce([]);
     mockCreate.mockRejectedValueOnce(new Error('DB error'));
 
     const result = await importCatalogData(mockStrapi, {
