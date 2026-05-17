@@ -108,6 +108,49 @@ export async function syncCloudinaryToStrapi(
       const filename = getFilenameFromPublicId(resource.public_id);
       const mime = getMimeType(resource.format);
 
+      // Generate Cloudinary thumbnail URL using transformations
+      const thumbnailUrl = resource.secure_url.replace(
+        '/upload/',
+        '/upload/c_fill,w_245,h_245/'
+      );
+      const smallUrl = resource.secure_url.replace(
+        '/upload/',
+        '/upload/c_fill,w_500,h_500/'
+      );
+
+      const formats = {
+        thumbnail: {
+          url: thumbnailUrl,
+          width: 245,
+          height: 245,
+          size: resource.bytes / 2000,
+          mime,
+          ext: `.${resource.format}`,
+          name: `thumbnail_${filename}.${resource.format}`,
+          hash: `thumbnail_${hash}`,
+          provider: '@strapi/provider-upload-cloudinary',
+          provider_metadata: {
+            public_id: resource.public_id,
+            resource_type: resource.resource_type,
+          },
+        },
+        small: {
+          url: smallUrl,
+          width: 500,
+          height: 500,
+          size: resource.bytes / 1500,
+          mime,
+          ext: `.${resource.format}`,
+          name: `small_${filename}.${resource.format}`,
+          hash: `small_${hash}`,
+          provider: '@strapi/provider-upload-cloudinary',
+          provider_metadata: {
+            public_id: resource.public_id,
+            resource_type: resource.resource_type,
+          },
+        },
+      };
+
       await strapi.db.query('plugin::upload.file').create({
         data: {
           name: `${filename}.${resource.format}`,
@@ -120,6 +163,7 @@ export async function syncCloudinaryToStrapi(
           width: resource.width || null,
           height: resource.height || null,
           url: resource.secure_url,
+          formats,
           provider: '@strapi/provider-upload-cloudinary',
           provider_metadata: {
             public_id: resource.public_id,

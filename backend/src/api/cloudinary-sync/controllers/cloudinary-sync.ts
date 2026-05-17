@@ -16,12 +16,27 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     const folder = ctx.query.folder as string | undefined;
+    const force = ctx.query.force === 'true';
 
     try {
+      // Force mode: delete all synced files first, then re-sync with thumbnails
+      if (force) {
+        const existing = await strapi.db.query('plugin::upload.file').findMany({
+          select: ['id'],
+          where: { provider: '@strapi/provider-upload-cloudinary' },
+        });
+
+        for (const file of existing) {
+          await strapi.db.query('plugin::upload.file').delete({
+            where: { id: (file as { id: number }).id },
+          });
+        }
+      }
+
       const result = await syncCloudinaryToStrapi(strapi, folder);
 
       ctx.body = {
-        message: 'Cloudinary sync completed',
+        message: force ? 'Force re-sync completed' : 'Cloudinary sync completed',
         data: result,
       };
     } catch (error) {
