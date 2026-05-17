@@ -28,6 +28,9 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.throw(400, 'Only .xlsx files are supported');
     }
 
+    // If force=true, delete all existing products/subcategories first
+    const force = ctx.query.force === 'true';
+
     try {
       const fs = await import('fs');
       const buffer = fs.readFileSync(uploadedFile.filepath || uploadedFile.path);
@@ -40,6 +43,21 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       // Run import in background to avoid gateway timeout
       setImmediate(async () => {
         try {
+          if (force) {
+            // Delete all products and subcategories via Document Service
+            const allProducts = await strapi.documents('api::product.product').findMany({ limit: 1000 });
+            for (const p of allProducts) {
+              await strapi.documents('api::product.product').delete({ documentId: p.documentId });
+            }
+            strapi.log.info(`Force import: deleted ${allProducts.length} existing products`);
+
+            const allSubs = await strapi.documents('api::subcategory.subcategory').findMany({ limit: 1000 });
+            for (const s of allSubs) {
+              await strapi.documents('api::subcategory.subcategory').delete({ documentId: s.documentId });
+            }
+            strapi.log.info(`Force import: deleted ${allSubs.length} existing subcategories`);
+          }
+
           const result = await importCatalogData(strapi, data);
           strapi.log.info(
             `Bulk import done: Categories ${result.categories.created} new/${result.categories.skipped} skipped, ` +
@@ -58,7 +76,9 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
 
       // Return immediately
       ctx.body = {
-        message: 'Import started in background. Check Railway logs for progress.',
+        message: force
+          ? 'Force import started (deleting existing data first). Check logs for progress.'
+          : 'Import started in background. Check Railway logs for progress.',
         data: {
           categories: data.categories.length,
           subcategories: data.subcategories.length,
