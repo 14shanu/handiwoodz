@@ -18,31 +18,41 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
     const folder = ctx.query.folder as string | undefined;
     const force = ctx.query.force === 'true';
 
-    try {
-      // Force mode: delete all synced files first, then re-sync with thumbnails
-      if (force) {
-        const existing = await strapi.db.query('plugin::upload.file').findMany({
-          select: ['id'],
-          where: { provider: '@strapi/provider-upload-cloudinary' },
-        });
-
-        for (const file of existing) {
-          await strapi.db.query('plugin::upload.file').delete({
-            where: { id: (file as { id: number }).id },
+    // Run sync in background to avoid gateway timeout
+    setImmediate(async () => {
+      try {
+        if (force) {
+          const existing = await strapi.db.query('plugin::upload.file').findMany({
+            select: ['id'],
+            where: { provider: '@strapi/provider-upload-cloudinary' },
           });
+
+          let deleted = 0;
+          for (const file of existing) {
+            await strapi.db.query('plugin::upload.file').delete({
+              where: { id: (file as { id: number }).id },
+            });
+            deleted++;
+          }
+          strapi.log.info(`Force sync: deleted ${deleted} existing records`);
         }
+
+        const result = await syncCloudinaryToStrapi(strapi, folder);
+        strapi.log.info(
+          `Cloudinary sync done: ${result.synced} added, ${result.deleted} removed, ${result.skipped} skipped, ${result.errors.length} errors`
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        strapi.log.error(`Cloudinary sync failed: ${message}`);
       }
+    });
 
-      const result = await syncCloudinaryToStrapi(strapi, folder);
-
-      ctx.body = {
-        message: force ? 'Force re-sync completed' : 'Cloudinary sync completed',
-        data: result,
-      };
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      ctx.throw(500, `Sync failed: ${message}`);
-    }
+    // Return immediately
+    ctx.body = {
+      message: force
+        ? 'Force re-sync started in background. Check Railway logs for progress.'
+        : 'Sync started in background. Check Railway logs for progress.',
+    };
   },
 });
 

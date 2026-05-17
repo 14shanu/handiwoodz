@@ -425,4 +425,57 @@ npm run dev        # Next.js dev server on :3000
 
 ---
 
+## 18. Operations Commands
+
+### Cloudinary Sync
+Syncs all Cloudinary images into Strapi's media library with proper thumbnails.
+
+```bash
+# Normal sync (adds new files, removes deleted, skips existing)
+curl -X POST "https://api.handiwoodz.com/api/cloudinary-sync" \
+  -H "x-sync-secret: YOUR_SYNC_SECRET"
+
+# Force re-sync (deletes all media records, re-syncs everything with thumbnails)
+# Use this if thumbnails are broken or after first deploy
+curl -X POST "https://api.handiwoodz.com/api/cloudinary-sync?force=true" \
+  -H "x-sync-secret: YOUR_SYNC_SECRET"
+
+# Sync specific folder only
+curl -X POST "https://api.handiwoodz.com/api/cloudinary-sync?folder=handiwoodz/products" \
+  -H "x-sync-secret: YOUR_SYNC_SECRET"
+```
+
+**Note:** Sync runs async in background. Check Railway logs for progress.
+
+**Automatic sync:**
+- Runs on every server startup (30s delay)
+- Runs daily at 2:00 AM (if `CRON_ENABLED=true`)
+
+### Bulk Import (Excel)
+
+```bash
+# Upload via API
+curl -X POST "https://api.handiwoodz.com/api/bulk-import" \
+  -H "x-sync-secret: YOUR_SYNC_SECRET" \
+  -F "file=@your-catalog.xlsx"
+
+# Or use the web UI
+https://api.handiwoodz.com/import.html
+```
+
+**Excel format:** 3 sheets — `Categories`, `Subcategories`, `Products`
+**Template:** Download from `https://api.handiwoodz.com/catalog-template.xlsx`
+
+### Database Backup
+
+```bash
+# Export from Railway Postgres
+pg_dump "YOUR_RAILWAY_DATABASE_URL" > backup-$(date +%Y%m%d).sql
+
+# Restore to another Postgres
+psql "NEW_DATABASE_URL" < backup-20260517.sql
+```
+
+---
+
 *Document created: Ready for implementation.*
