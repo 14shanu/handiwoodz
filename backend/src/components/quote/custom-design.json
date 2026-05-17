@@ -5,10 +5,11 @@
     "description": "Custom design upload in a quote request"
   },
   "attributes": {
-    "file": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": ["images", "files"]
+    "fileUrl": {
+      "type": "string"
+    },
+    "fileName": {
+      "type": "string"
     },
     "designName": {
       "type": "string"

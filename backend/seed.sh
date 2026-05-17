@@ -1,19 +1,27 @@
 #!/bin/bash
 
-# Usage: ./seed.sh
-# Reads STRAPI_API_TOKEN from .env file automatically
+# Usage: ./seed.sh [local|prod]
+# Defaults to local. Use 'prod' to seed production database.
+
+ENV=${1:-local}
 
 # Load token from .env
 if [ -f .env ]; then
-  TOKEN=$(grep -i "Strapi_Api_token" .env | cut -d '=' -f2 | tr -d ' ')
+  if [ "$ENV" = "prod" ]; then
+    TOKEN=$(grep -i "Strapi_Api_token_Prod" .env | cut -d '=' -f2 | tr -d ' ')
+    API="https://api.handiwoodz.com/api"
+  else
+    TOKEN=$(grep -i "Strapi_Api_token" .env | grep -iv "Prod" | cut -d '=' -f2 | tr -d ' ')
+    API="http://localhost:1337/api"
+  fi
 fi
 
 if [ -z "$TOKEN" ]; then
-  echo "Error: STRAPI_API_TOKEN not found in .env"
+  echo "Error: API token not found in .env"
   exit 1
 fi
 
-API="http://localhost:1337/api"
+echo "Seeding $ENV database at $API"
 HEADER="Authorization: Bearer $TOKEN"
 
 echo "=== Seeding Categories ==="
