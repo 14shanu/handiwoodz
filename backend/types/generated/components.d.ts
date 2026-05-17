@@ -26,7 +26,8 @@ export interface QuoteCustomDesign extends Struct.ComponentSchema {
       ['single', 'two', 'three', 'multicolor', 'not_sure']
     >;
     designName: Schema.Attribute.String;
-    file: Schema.Attribute.Media<'images' | 'files'>;
+    fileName: Schema.Attribute.String;
+    fileUrl: Schema.Attribute.String;
     height: Schema.Attribute.Decimal;
     notes: Schema.Attribute.Text;
     productType: Schema.Attribute.Enumeration<

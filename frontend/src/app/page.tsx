@@ -1,4 +1,4 @@
-import { getCategories, getFeaturedProducts } from "@/lib/api";
+import { getCategories, getFeaturedProducts, getSiteSettings } from "@/lib/api";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
 import {
@@ -17,17 +17,27 @@ export const metadata = generatePageMetadata({
 });
 
 export default async function HomePage() {
-  const [categories, featuredProducts] = await Promise.all([
+  const [categories, featuredProducts, siteSettings] = await Promise.all([
     getCategories(),
     getFeaturedProducts(),
+    getSiteSettings(),
   ]);
 
   return (
     <main>
-      <HeroSection />
-      <CategoryCards categories={categories} />
-      <FeaturedProducts products={featuredProducts} />
-      <CustomDesignCta />
+      <HeroSection
+        heroImage={siteSettings.heroImage}
+        heroImageMobile={siteSettings.heroImageMobile}
+      />
+      <CategoryCards
+        categories={categories}
+        fallbackImage={siteSettings.fallbackCategoryImage}
+      />
+      <FeaturedProducts
+        products={featuredProducts}
+        fallbackImage={siteSettings.fallbackProductImage}
+      />
+      <CustomDesignCta backgroundImage={siteSettings.ctaBackgroundImage} />
       <TrustSection />
     </main>
   );

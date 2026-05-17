@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { sharedContent } from "@/lib/content";
@@ -12,7 +13,7 @@ const businessLinks = sharedContent.footer.links.business.map((link) => ({
   href: ROUTES[link.key.toUpperCase().replace(/-/g, "_") as keyof typeof ROUTES] || "#",
 }));
 
-export default function Footer() {
+export default function Footer({ logoUrl }: { logoUrl?: string }) {
   const whatsappHref = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}`;
 
   return (
@@ -23,7 +24,11 @@ export default function Footer() {
             href={ROUTES.HOME}
             className="font-display text-headline-sm text-primary block"
           >
-            {sharedContent.siteName}
+            {logoUrl ? (
+              <Image src={logoUrl} alt={sharedContent.siteName} width={128} height={32} className="h-8 w-auto" />
+            ) : (
+              sharedContent.siteName
+            )}
           </Link>
           <p className="font-body text-body-md text-on-surface-variant leading-relaxed">
             {sharedContent.footer.brandDescription}

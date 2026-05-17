@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { ourStoryContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
+import { getSiteSettings } from "@/lib/api";
 
 export const metadata: Metadata = generatePageMetadata({
   title: seoContent.pages.ourStory.title,
@@ -12,12 +14,26 @@ export const metadata: Metadata = generatePageMetadata({
   path: "/our-story",
 });
 
-export default function OurStoryPage() {
+export default async function OurStoryPage() {
+  const siteSettings = await getSiteSettings();
+  const galleryImages = siteSettings.ourStoryGallery || [];
+
   return (
     <main>
       {/* Hero */}
       <section className="relative h-[500px] md:h-[700px] w-full flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-surface-container-high" />
+        {siteSettings.ourStoryHeroImage?.url ? (
+          <Image
+            src={siteSettings.ourStoryHeroImage.url}
+            alt={siteSettings.ourStoryHeroImage.alternativeText || "Our Story"}
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-surface-container-high" />
+        )}
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center text-on-primary px-margin-mobile">
           <h1 className="font-display text-display mb-4">
@@ -31,34 +47,50 @@ export default function OurStoryPage() {
 
       {/* Narrative Blocks */}
       <section className="max-w-[1100px] mx-auto px-margin-mobile py-section-gap space-y-section-gap">
-        {ourStoryContent.narrative.map((block, index) => (
-          <div
-            key={block.heading}
-            className={`grid grid-cols-1 md:grid-cols-2 gap-gutter items-center ${
-              index % 2 === 0 ? "" : "md:[&>*:first-child]:order-2"
-            }`}
-          >
-            <div className="aspect-[4/5] bg-surface-container-high rounded-lg shadow-lg" />
-            <div className={index % 2 === 0 ? "md:pl-margin-desktop" : "md:pr-margin-desktop"}>
-              <span className="font-body text-label-md text-secondary mb-4 block uppercase">
-                {block.badge}
-              </span>
-              <h2 className="font-display text-headline-lg text-primary mb-6">
-                {block.heading}
-              </h2>
-              <p className="font-body text-body-md text-on-surface-variant mb-8">
-                {block.body}
-              </p>
-              {"quote" in block && block.quote && (
-                <blockquote className="border-l-4 border-secondary pl-6 italic">
-                  <p className="font-display text-headline-sm text-primary">
-                    &ldquo;{block.quote}&rdquo;
-                  </p>
-                </blockquote>
-              )}
+        {ourStoryContent.narrative.map((block, index) => {
+          const galleryImage = galleryImages[index];
+
+          return (
+            <div
+              key={block.heading}
+              className={`grid grid-cols-1 md:grid-cols-2 gap-gutter items-center ${
+                index % 2 === 0 ? "" : "md:[&>*:first-child]:order-2"
+              }`}
+            >
+              <div className="relative aspect-[4/5] rounded-lg shadow-lg overflow-hidden">
+                {galleryImage?.url ? (
+                  <Image
+                    src={galleryImage.url}
+                    alt={galleryImage.alternativeText || block.heading}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-surface-container-high" />
+                )}
+              </div>
+              <div className={index % 2 === 0 ? "md:pl-margin-desktop" : "md:pr-margin-desktop"}>
+                <span className="font-body text-label-md text-secondary mb-4 block uppercase">
+                  {block.badge}
+                </span>
+                <h2 className="font-display text-headline-lg text-primary mb-6">
+                  {block.heading}
+                </h2>
+                <p className="font-body text-body-md text-on-surface-variant mb-8">
+                  {block.body}
+                </p>
+                {"quote" in block && block.quote && (
+                  <blockquote className="border-l-4 border-secondary pl-6 italic">
+                    <p className="font-display text-headline-sm text-primary">
+                      &ldquo;{block.quote}&rdquo;
+                    </p>
+                  </blockquote>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       {/* Process */}

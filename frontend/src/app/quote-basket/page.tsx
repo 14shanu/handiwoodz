@@ -85,7 +85,18 @@ export default function QuoteBasketPage() {
                       key={`${item.productId}-${item.selectedSize}`}
                       className="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-4 flex flex-col sm:flex-row gap-6 shadow-sm"
                     >
-                      <div className="w-full sm:w-32 h-32 bg-surface-container rounded" />
+                      <div className="relative w-full sm:w-32 h-32 bg-surface-container rounded overflow-hidden">
+                        {item.productImage ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={item.productImage}
+                            alt={item.productName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-surface-container-high" />
+                        )}
+                      </div>
                       <div className="flex-1 flex flex-col justify-between">
                         <div className="flex justify-between items-start">
                           <div>

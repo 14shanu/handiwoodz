@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handiwoodz — Bulk Import</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 40px 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    h1 { font-size: 24px; margin-bottom: 8px; color: #1a1a1a; }
+    .subtitle { color: #666; margin-bottom: 32px; font-size: 14px; }
+    #dropZone { border: 2px dashed #ddd; border-radius: 8px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    #dropZone:hover, #dropZone.dragover { border-color: #4f46e5; background: #f8f7ff; }
+    #dropZone.selected { border-color: #4f46e5; border-style: solid; background: #f8f7ff; }
+    #dropZone p { color: #666; margin-bottom: 8px; }
+    #dropZone .file-name { color: #4f46e5; font-weight: 600; font-size: 16px; }
+    .secret-field { margin-top: 20px; }
+    .secret-field label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #333; }
+    .secret-field input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .btn { display: block; width: 100%; padding: 14px; background: #4f46e5; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 24px; transition: background 0.2s; }
+    .btn:hover { background: #4338ca; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .result { margin-top: 24px; padding: 16px; border-radius: 8px; font-size: 14px; white-space: pre-wrap; }
+    .result.success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .result.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .result.loading { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .info { margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; font-size: 13px; color: #555; }
+    .info h3 { font-size: 14px; margin-bottom: 8px; color: #333; }
+    .info code { background: #e5e7eb; padding: 2px 5px; border-radius: 3px; font-size: 12px; }
+    .template-link { display: inline-block; margin-top: 16px; color: #4f46e5; text-decoration: none; font-size: 14px; font-weight: 500; }
+    .template-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📦 Bulk Import</h1>
+    <p class="subtitle">Upload an Excel file to import categories, subcategories, and products.</p>
+
+    <div id="dropZone">
+      <p id="dropText">Drag & drop your <strong>.xlsx</strong> file here<br>or click to browse</p>
+      <div class="file-name" id="fileName" style="display:none;"></div>
+    </div>
+
+    <div class="secret-field">
+      <label for="secret">Sync Secret</label>
+      <input type="password" id="secret" placeholder="Enter your sync secret">
+    </div>
+
+    <button class="btn" id="importBtn" disabled>Import Catalog</button>
+
+    <div class="result" id="result" style="display:none;"></div>
+
+    <a href="/catalog-template.xlsx" class="template-link" download>⬇ Download Excel Template</a>
+
+    <div class="info">
+      <h3>Excel Format</h3>
+      <p>3 sheets required: <code>Categories</code>, <code>Subcategories</code>, <code>Products</code></p>
+      <br>
+      <p><strong>Categories:</strong> name, description, image</p>
+      <p><strong>Subcategories:</strong> name, category</p>
+      <p><strong>Products:</strong> name, subcategory, shortDescription, sizeOptions, minQuantity, featured, images, filters</p>
+      <br>
+      <p><code>sizeOptions</code>: comma-separated — 3x3 inch, 4x4 inch</p>
+      <p><code>images</code>: comma-separated filenames — block-01.jpg, block-02.jpg</p>
+      <p><code>filters</code>: colon pairs — size:4x4,woodType:teak,shape:square</p>
+    </div>
+  </div>
+
+  <script src="/import.js"></script>
+</body>
+</html>

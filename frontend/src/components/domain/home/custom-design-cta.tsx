@@ -1,13 +1,31 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { homepageContent } from "@/lib/content";
+import { StrapiMedia } from "@/lib/types";
 
-export default function CustomDesignCta() {
+interface CustomDesignCtaProps {
+  backgroundImage?: StrapiMedia;
+}
+
+export default function CustomDesignCta({ backgroundImage }: CustomDesignCtaProps) {
   const whatsappHref = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}`;
 
   return (
     <section className="max-w-container mx-auto px-margin-mobile md:px-margin-desktop my-section-gap">
       <div className="bg-primary rounded-2xl overflow-hidden shadow-2xl relative p-12 md:p-24 text-center">
+        {backgroundImage?.url && (
+          <>
+            <Image
+              src={backgroundImage.url}
+              alt={backgroundImage.alternativeText || "Custom design background"}
+              fill
+              className="object-cover opacity-20"
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-primary/60" />
+          </>
+        )}
         <div className="relative z-10 max-w-2xl mx-auto space-y-8">
           <h2 className="font-display text-headline-lg text-surface-container-lowest">
             {homepageContent.customCta.heading}

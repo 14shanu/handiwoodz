@@ -1,18 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { sharedContent } from "@/lib/content";
 
 const navLinks = [
   { label: sharedContent.nav.catalog, href: ROUTES.CATALOG },
+  { label: sharedContent.nav.showcase, href: ROUTES.SHOWCASE },
   { label: sharedContent.nav.customDesign, href: ROUTES.CUSTOM_DESIGN },
   { label: sharedContent.nav.ourStory, href: ROUTES.OUR_STORY },
   { label: sharedContent.nav.wholesale, href: ROUTES.WHOLESALE },
 ];
 
-export default function Navbar() {
+export default function Navbar({ logoUrl }: { logoUrl?: string }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const whatsappHref = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}`;
 
@@ -23,7 +25,11 @@ export default function Navbar() {
           href={ROUTES.HOME}
           className="font-display text-headline-md text-primary tracking-tight"
         >
-          {sharedContent.siteName}
+          {logoUrl ? (
+            <Image src={logoUrl} alt={sharedContent.siteName} width={160} height={40} className="h-10 w-auto" />
+          ) : (
+            sharedContent.siteName
+          )}
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

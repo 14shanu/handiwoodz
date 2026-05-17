@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { getCategories } from "@/lib/api";
+import { getCategories, getSiteSettings } from "@/lib/api";
 import { ROUTES } from "@/lib/constants";
 import { catalogContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
@@ -16,7 +17,10 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 export default async function CatalogPage() {
-  const categories = await getCategories();
+  const [categories, siteSettings] = await Promise.all([
+    getCategories(),
+    getSiteSettings(),
+  ]);
 
   const breadcrumbItems = [
     { label: sharedContent.breadcrumb.home, href: ROUTES.HOME },
@@ -38,21 +42,36 @@ export default async function CatalogPage() {
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-          {categories.map((category) => (
-            <Link
-              key={category.slug}
-              href={`${ROUTES.CATALOG}/${category.slug}`}
-              className="group relative aspect-[4/5] rounded-lg overflow-hidden shadow-[0_4px_20px_-10px_rgba(50,23,22,0.1)] hover:-translate-y-2 transition-transform duration-300"
-            >
-              <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-600" />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <h3 className="font-display text-headline-sm text-on-primary">
-                  {category.name}
-                </h3>
-              </div>
-            </Link>
-          ))}
+          {categories.map((category) => {
+            const imageUrl = category.image?.url || siteSettings.fallbackCategoryImage?.url;
+            const imageAlt = category.image?.alternativeText || category.name;
+
+            return (
+              <Link
+                key={category.slug}
+                href={`${ROUTES.CATALOG}/${category.slug}`}
+                className="group relative aspect-[4/5] rounded-lg overflow-hidden shadow-[0_4px_20px_-10px_rgba(50,23,22,0.1)] hover:-translate-y-2 transition-transform duration-300"
+              >
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={imageAlt}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-600"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-600" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-8">
+                  <h3 className="font-display text-headline-sm text-on-primary">
+                    {category.name}
+                  </h3>
+                </div>
+              </Link>
+            );
+          })}
         </div>
 
         <div className="mt-24 relative overflow-hidden bg-primary rounded-lg p-12 md:p-16 flex flex-col md:flex-row items-center justify-between gap-8">

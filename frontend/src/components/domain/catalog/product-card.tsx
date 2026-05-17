@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/lib/types";
 import { sharedContent } from "@/lib/content";
@@ -9,11 +10,24 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, href }: ProductCardProps) {
+  const imageUrl = product.images?.[0]?.url;
+  const imageAlt = product.images?.[0]?.alternativeText || product.name;
+
   return (
     <div className="group bg-surface hover:shadow-lg transition-all duration-500 rounded-lg overflow-hidden border border-outline-variant/10">
       <Link href={href} className="block">
         <div className="relative aspect-square overflow-hidden bg-surface-container">
-          <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-700" />
+          {imageUrl ? (
+            <Image
+              src={imageUrl}
+              alt={imageAlt}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-700" />
+          )}
           {product.minQuantity > 1 && (
             <div className="absolute top-3 left-3 bg-tertiary text-on-tertiary font-body text-label-md text-[10px] px-2 py-1 uppercase tracking-wider rounded-sm">
               {catalogContent.listing.minQuantityLabel} {product.minQuantity} pcs

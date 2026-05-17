@@ -6,6 +6,7 @@ export const sharedContent = {
 
   nav: {
     catalog: "Catalog",
+    showcase: "Showcase",
     customDesign: "Custom Design",
     ourStory: "Our Story",
     wholesale: "Wholesale",

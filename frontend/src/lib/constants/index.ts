@@ -3,6 +3,7 @@ export const SITE_NAME = "Handiwoodz";
 export const ROUTES = {
   HOME: "/",
   CATALOG: "/catalog",
+  SHOWCASE: "/showcase",
   CUSTOM_DESIGN: "/custom-design",
   QUOTE_BASKET: "/quote-basket",
   OUR_STORY: "/our-story",

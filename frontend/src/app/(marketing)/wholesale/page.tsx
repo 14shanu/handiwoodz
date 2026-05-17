@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { wholesaleContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
+import { getSiteSettings } from "@/lib/api";
 
 export const metadata: Metadata = generatePageMetadata({
   title: seoContent.pages.wholesale.title,
@@ -12,14 +14,26 @@ export const metadata: Metadata = generatePageMetadata({
   path: "/wholesale",
 });
 
-export default function WholesalePage() {
+export default async function WholesalePage() {
+  const siteSettings = await getSiteSettings();
   const whatsappHref = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}`;
 
   return (
     <main>
       {/* Hero */}
-      <section className="bg-surface-container-low pt-16 pb-24 md:pt-24 md:pb-32 px-margin-mobile md:px-margin-desktop">
-        <div className="max-w-container mx-auto text-center">
+      <section className="relative bg-surface-container-low pt-16 pb-24 md:pt-24 md:pb-32 px-margin-mobile md:px-margin-desktop overflow-hidden">
+        {siteSettings.wholesaleHeroImage?.url && (
+          <>
+            <Image
+              src={siteSettings.wholesaleHeroImage.url}
+              alt={siteSettings.wholesaleHeroImage.alternativeText || "Wholesale"}
+              fill
+              className="object-cover opacity-10"
+              sizes="100vw"
+            />
+          </>
+        )}
+        <div className="max-w-container mx-auto text-center relative z-10">
           <h1 className="font-display text-display text-primary mb-6">
             {wholesaleContent.hero.title}
           </h1>

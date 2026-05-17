@@ -88,6 +88,20 @@ export interface StrapiMedia {
   height?: number;
 }
 
+export interface SiteSettings {
+  logo?: StrapiMedia;
+  logoDark?: StrapiMedia;
+  heroImage?: StrapiMedia;
+  heroImageMobile?: StrapiMedia;
+  ctaBackgroundImage?: StrapiMedia;
+  customDesignHeroImage?: StrapiMedia;
+  ourStoryHeroImage?: StrapiMedia;
+  ourStoryGallery?: StrapiMedia[];
+  wholesaleHeroImage?: StrapiMedia;
+  fallbackProductImage?: StrapiMedia;
+  fallbackCategoryImage?: StrapiMedia;
+}
+
 export interface StrapiResponse<T> {
   data: T;
   meta?: {

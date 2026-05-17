@@ -5,6 +5,7 @@ import { SITE_NAME } from "@/lib/constants";
 import { sharedContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
 import { generateOrganizationJsonLd } from "@/lib/utils/seo";
+import { getSiteSettings } from "@/lib/api";
 import { Navbar, Footer, WhatsAppFloat } from "@/components/layout";
 import { Toaster } from "sonner";
 
@@ -29,11 +30,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(seoContent.siteUrl),
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const siteSettings = await getSiteSettings();
+
   return (
     <html lang="en" className={`${ebGaramond.variable} ${montserrat.variable}`}>
       <body className="antialiased">
@@ -41,9 +44,9 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generateOrganizationJsonLd() }}
         />
-        <Navbar />
+        <Navbar logoUrl={siteSettings.logo?.url} />
         <div className="pt-20">{children}</div>
-        <Footer />
+        <Footer logoUrl={siteSettings.logoDark?.url || siteSettings.logo?.url} />
         <WhatsAppFloat />
         <Toaster position="bottom-right" richColors />
       </body>

@@ -6,7 +6,8 @@ export const API = {
   SUBCATEGORIES: `${API_BASE_URL}/api/subcategories`,
   PRODUCTS: `${API_BASE_URL}/api/products`,
   QUOTE_REQUESTS: `${API_BASE_URL}/api/quote-requests`,
-  REVALIDATE: false as const, // false = pure SSG (rebuild to update). Set number for ISR (e.g. 3600 = 1 hour)
+  SITE_SETTINGS: `${API_BASE_URL}/api/site-setting`,
+  REVALIDATE: false as const,
 } as const;
 
 export const CLOUDINARY = {

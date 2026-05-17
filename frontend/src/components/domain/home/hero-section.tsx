@@ -1,8 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { homepageContent } from "@/lib/content";
+import { StrapiMedia } from "@/lib/types";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  heroImage?: StrapiMedia;
+  heroImageMobile?: StrapiMedia;
+}
+
+export default function HeroSection({ heroImage, heroImageMobile }: HeroSectionProps) {
   return (
     <section className="relative overflow-hidden">
       <div className="max-w-container mx-auto px-margin-mobile md:px-margin-desktop py-section-gap flex flex-col md:flex-row items-center gap-16">
@@ -33,7 +40,30 @@ export default function HeroSection() {
         </div>
         <div className="flex-1 w-full h-[400px] md:h-[600px] relative">
           <div className="absolute inset-0 bg-secondary/5 rounded-2xl transform rotate-3 -z-10" />
-          <div className="w-full h-full bg-surface-container-high rounded-xl shadow-xl" />
+          {heroImage?.url ? (
+            <>
+              <Image
+                src={heroImage.url}
+                alt={heroImage.alternativeText || "Handiwoodz craftsmanship"}
+                fill
+                className={`object-cover rounded-xl shadow-xl ${heroImageMobile ? "hidden md:block" : ""}`}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                priority
+              />
+              {heroImageMobile?.url && (
+                <Image
+                  src={heroImageMobile.url}
+                  alt={heroImageMobile.alternativeText || "Handiwoodz craftsmanship"}
+                  fill
+                  className="object-cover rounded-xl shadow-xl md:hidden"
+                  sizes="100vw"
+                  priority
+                />
+              )}
+            </>
+          ) : (
+            <div className="w-full h-full bg-surface-container-high rounded-xl shadow-xl" />
+          )}
         </div>
       </div>
     </section>
