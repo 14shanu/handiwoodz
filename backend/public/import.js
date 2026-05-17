@@ -90,21 +90,32 @@
       }
 
       var r = data.data;
-      var summary = [
-        '\u2705 Import completed!\n',
-        'Categories:    ' + r.categories.created + ' created, ' + r.categories.skipped + ' skipped',
-        'Subcategories: ' + r.subcategories.created + ' created, ' + r.subcategories.skipped + ' skipped',
-        'Products:      ' + r.products.created + ' created, ' + r.products.skipped + ' skipped',
-      ];
+      var summary;
 
-      var allErrors = [].concat(r.categories.errors, r.subcategories.errors, r.products.errors);
+      if (typeof r.categories === 'number') {
+        summary = [
+          '\u2705 Import started in background!\n',
+          'Processing: ' + r.categories + ' categories, ' + r.subcategories + ' subcategories, ' + r.products + ' products',
+          '\nCheck server logs for completion.',
+        ];
+        showResult(summary.join('\n'), 'success');
+      } else {
+        summary = [
+          '\u2705 Import completed!\n',
+          'Categories:    ' + r.categories.created + ' created, ' + r.categories.skipped + ' skipped',
+          'Subcategories: ' + r.subcategories.created + ' created, ' + r.subcategories.skipped + ' skipped',
+          'Products:      ' + r.products.created + ' created, ' + r.products.skipped + ' skipped',
+        ];
 
-      if (allErrors.length > 0) {
-        summary.push('\n\u26A0\uFE0F Errors (' + allErrors.length + '):');
-        allErrors.forEach(function(e) { summary.push('  \u2022 ' + e); });
+        var allErrors = [].concat(r.categories.errors || [], r.subcategories.errors || [], r.products.errors || []);
+
+        if (allErrors.length > 0) {
+          summary.push('\n\u26A0\uFE0F Errors (' + allErrors.length + '):');
+          allErrors.forEach(function(e) { summary.push('  \u2022 ' + e); });
+        }
+
+        showResult(summary.join('\n'), allErrors.length > 0 ? 'error' : 'success');
       }
-
-      showResult(summary.join('\n'), allErrors.length > 0 ? 'error' : 'success');
     } catch (error) {
       showResult('Network error: ' + error.message, 'error');
     } finally {

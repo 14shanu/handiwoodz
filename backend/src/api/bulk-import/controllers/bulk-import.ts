@@ -37,11 +37,33 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
         return ctx.throw(400, 'Excel file is empty or sheets are not named correctly. Expected sheets: Categories, Subcategories, Products');
       }
 
-      const result = await importCatalogData(strapi, data);
+      // Run import in background to avoid gateway timeout
+      setImmediate(async () => {
+        try {
+          const result = await importCatalogData(strapi, data);
+          strapi.log.info(
+            `Bulk import done: Categories ${result.categories.created} new/${result.categories.skipped} skipped, ` +
+            `Subcategories ${result.subcategories.created} new/${result.subcategories.skipped} skipped, ` +
+            `Products ${result.products.created} new/${result.products.skipped} skipped`
+          );
+          if (result.categories.errors.length || result.subcategories.errors.length || result.products.errors.length) {
+            const allErrors = [...result.categories.errors, ...result.subcategories.errors, ...result.products.errors];
+            strapi.log.warn(`Bulk import errors: ${allErrors.join('; ')}`);
+          }
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          strapi.log.error(`Bulk import failed: ${message}`);
+        }
+      });
 
+      // Return immediately
       ctx.body = {
-        message: 'Bulk import completed',
-        data: result,
+        message: 'Import started in background. Check Railway logs for progress.',
+        data: {
+          categories: data.categories.length,
+          subcategories: data.subcategories.length,
+          products: data.products.length,
+        },
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
