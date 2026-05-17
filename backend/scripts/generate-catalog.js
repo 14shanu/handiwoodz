@@ -151,8 +151,11 @@ async function run() {
 
   console.log(`\nProcessing ${blockFiles.length} block files for auto-catalog...`);
 
+  // Pick first block image as category image
+  const categoryImage = blockFiles.length > 0 ? `${blockFiles[0].public_id}.${blockFiles[0].format}` : '';
+
   const categories = [
-    { name: CATEGORY_NAME, description: 'Handcrafted wooden printing blocks for textile and paper printing', image: '' },
+    { name: CATEGORY_NAME, description: 'Handcrafted wooden printing blocks for textile and paper printing', image: categoryImage },
   ];
 
   const subcategoriesSet = new Set();

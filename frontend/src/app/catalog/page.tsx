@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { getCategories, getSiteSettings } from "@/lib/api";
+import { getCategoriesWithProductImages, getSiteSettings } from "@/lib/api";
 import { ROUTES } from "@/lib/constants";
 import { catalogContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
-import { Breadcrumb } from "@/components/ui";
+import { Breadcrumb, ImageCarousel } from "@/components/ui";
 import { sharedContent } from "@/lib/content";
 
 export const metadata: Metadata = generatePageMetadata({
@@ -18,7 +18,7 @@ export const metadata: Metadata = generatePageMetadata({
 
 export default async function CatalogPage() {
   const [categories, siteSettings] = await Promise.all([
-    getCategories(),
+    getCategoriesWithProductImages(),
     getSiteSettings(),
   ]);
 
@@ -43,8 +43,9 @@ export default async function CatalogPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
           {categories.map((category) => {
-            const imageUrl = category.image?.url || siteSettings.fallbackCategoryImage?.url;
-            const imageAlt = category.image?.alternativeText || category.name;
+            const carouselImages = category.productImages || [];
+            const hasCarousel = carouselImages.length > 0;
+            const staticImage = category.image?.url || siteSettings.fallbackCategoryImage?.url;
 
             return (
               <Link
@@ -52,10 +53,16 @@ export default async function CatalogPage() {
                 href={`${ROUTES.CATALOG}/${category.slug}`}
                 className="group relative aspect-[4/5] rounded-lg overflow-hidden shadow-[0_4px_20px_-10px_rgba(50,23,22,0.1)] hover:-translate-y-2 transition-transform duration-300"
               >
-                {imageUrl ? (
+                {hasCarousel ? (
+                  <ImageCarousel
+                    images={carouselImages}
+                    alt={category.name}
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                ) : staticImage ? (
                   <Image
-                    src={imageUrl}
-                    alt={imageAlt}
+                    src={staticImage}
+                    alt={category.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-600"
                     sizes="(max-width: 768px) 100vw, 33vw"
@@ -63,8 +70,8 @@ export default async function CatalogPage() {
                 ) : (
                   <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-600" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent z-10" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
                   <h3 className="font-display text-headline-sm text-on-primary">
                     {category.name}
                   </h3>

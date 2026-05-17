@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCategories, getSubcategoriesByCategory } from "@/lib/api";
+import { getCategories, getSubcategoriesWithProductImages } from "@/lib/api";
 import { ROUTES } from "@/lib/constants";
 import { sharedContent, catalogContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
-import { Breadcrumb } from "@/components/ui";
+import { Breadcrumb, ImageCarousel } from "@/components/ui";
 
 interface CategoryPageProps {
   params: {
@@ -35,7 +35,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const subcategories = await getSubcategoriesByCategory(params.category);
+  const subcategories = await getSubcategoriesWithProductImages(params.category);
 
   const breadcrumbItems = [
     { label: sharedContent.breadcrumb.home, href: ROUTES.HOME },
@@ -61,21 +61,34 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         {subcategories.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
-            {subcategories.map((sub) => (
-              <Link
-                key={sub.slug}
-                href={`${ROUTES.CATALOG}/${params.category}/${sub.slug}`}
-                className="group relative aspect-[4/5] rounded-lg overflow-hidden shadow-[0_4px_20px_-10px_rgba(50,23,22,0.1)] hover:-translate-y-2 transition-transform duration-300"
-              >
-                <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-600" />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <h3 className="font-display text-headline-sm text-on-primary">
-                    {sub.name}
-                  </h3>
-                </div>
-              </Link>
-            ))}
+            {subcategories.map((sub) => {
+              const carouselImages = sub.productImages || [];
+              const hasCarousel = carouselImages.length > 0;
+
+              return (
+                <Link
+                  key={sub.slug}
+                  href={`${ROUTES.CATALOG}/${params.category}/${sub.slug}`}
+                  className="group relative aspect-[4/5] rounded-lg overflow-hidden shadow-[0_4px_20px_-10px_rgba(50,23,22,0.1)] hover:-translate-y-2 transition-transform duration-300"
+                >
+                  {hasCarousel ? (
+                    <ImageCarousel
+                      images={carouselImages}
+                      alt={sub.name}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-surface-container-high group-hover:scale-105 transition-transform duration-600" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent z-10" />
+                  <div className="absolute bottom-0 left-0 right-0 p-8 z-10">
+                    <h3 className="font-display text-headline-sm text-on-primary">
+                      {sub.name}
+                    </h3>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-24">

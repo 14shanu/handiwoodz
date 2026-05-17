@@ -1,4 +1,4 @@
-import { getCategories, getFeaturedProducts, getSiteSettings } from "@/lib/api";
+import { getCategoriesWithProductImages, getFeaturedProducts, getSiteSettings } from "@/lib/api";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
 import {
@@ -18,7 +18,7 @@ export const metadata = generatePageMetadata({
 
 export default async function HomePage() {
   const [categories, featuredProducts, siteSettings] = await Promise.all([
-    getCategories(),
+    getCategoriesWithProductImages(),
     getFeaturedProducts(),
     getSiteSettings(),
   ]);

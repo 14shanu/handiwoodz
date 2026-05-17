@@ -7,7 +7,7 @@ export const API = {
   PRODUCTS: `${API_BASE_URL}/api/products`,
   QUOTE_REQUESTS: `${API_BASE_URL}/api/quote-requests`,
   SITE_SETTINGS: `${API_BASE_URL}/api/site-setting`,
-  REVALIDATE: false as const,
+  REVALIDATE: 3600 as const,
 } as const;
 
 export const CLOUDINARY = {

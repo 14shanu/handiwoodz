@@ -7,6 +7,7 @@ import { seoContent } from "@/lib/content/seo";
 import { generateOrganizationJsonLd } from "@/lib/utils/seo";
 import { getSiteSettings } from "@/lib/api";
 import { Navbar, Footer, WhatsAppFloat } from "@/components/layout";
+import { LoadingBar } from "@/components/ui";
 import { Toaster } from "sonner";
 
 const ebGaramond = EB_Garamond({
@@ -44,6 +45,7 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: generateOrganizationJsonLd() }}
         />
+        <LoadingBar />
         <Navbar logoUrl={siteSettings.logo?.url} />
         <div className="pt-20">{children}</div>
         <Footer logoUrl={siteSettings.logoDark?.url || siteSettings.logo?.url} />

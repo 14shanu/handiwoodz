@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { homepageContent } from "@/lib/content";
 import { Category, StrapiMedia } from "@/lib/types";
+import { ImageCarousel } from "@/components/ui";
 
 interface CategoryCardsProps {
   categories: Category[];
@@ -31,8 +32,9 @@ export default function CategoryCards({ categories, fallbackImage }: CategoryCar
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
           {categories.map((category) => {
-            const imageUrl = category.image?.url || fallbackImage?.url;
-            const imageAlt = category.image?.alternativeText || category.name;
+            const carouselImages = category.productImages || [];
+            const hasCarousel = carouselImages.length > 0;
+            const staticImage = category.image?.url || fallbackImage?.url;
 
             return (
               <Link
@@ -40,10 +42,17 @@ export default function CategoryCards({ categories, fallbackImage }: CategoryCar
                 href={`${ROUTES.CATALOG}/${category.slug}`}
                 className="group relative h-[400px] overflow-hidden rounded-lg cursor-pointer"
               >
-                {imageUrl ? (
+                {hasCarousel ? (
+                  <ImageCarousel
+                    images={carouselImages}
+                    alt={category.name}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="group-hover:scale-105 transition-transform duration-700"
+                  />
+                ) : staticImage ? (
                   <Image
-                    src={imageUrl}
-                    alt={imageAlt}
+                    src={staticImage}
+                    alt={category.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -51,7 +60,7 @@ export default function CategoryCards({ categories, fallbackImage }: CategoryCar
                 ) : (
                   <div className="w-full h-full bg-surface-container-high transition-transform duration-700 group-hover:scale-110" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-8 z-10">
                   <h3 className="font-display text-headline-sm text-on-primary">
                     {category.name}
                   </h3>

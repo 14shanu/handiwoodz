@@ -5,6 +5,7 @@ export interface Category {
   description?: string;
   image?: StrapiMedia;
   subcategories?: Subcategory[];
+  productImages?: StrapiMedia[];
 }
 
 export interface Subcategory {
@@ -13,6 +14,7 @@ export interface Subcategory {
   slug: string;
   category?: Category;
   products?: Product[];
+  productImages?: StrapiMedia[];
 }
 
 export interface Product {
