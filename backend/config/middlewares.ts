@@ -12,7 +12,6 @@ const config: Core.Config.Middlewares = [
           'connect-src': ["'self'", 'https:'],
           'img-src': ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com'],
           'media-src': ["'self'", 'data:', 'blob:', 'https://res.cloudinary.com'],
-          'upgrade-insecure-requests': null,
         },
       },
     },
