@@ -137,7 +137,7 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
   return (
     <div className="min-h-screen">
       {/* Search + Sort bar */}
-      <div className="sticky top-20 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant/20 py-4 px-margin-mobile md:px-margin-desktop">
+      <div className="sticky top-20 z-30 bg-surface border-b border-outline-variant/20 py-4 px-margin-mobile md:px-margin-desktop">
         <div className="max-w-container mx-auto flex flex-col md:flex-row gap-4 items-center">
           {/* Search */}
           <div className="relative flex-1 w-full md:max-w-sm">
@@ -165,7 +165,7 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
       </div>
 
       {/* Filter pills */}
-      <div className="sticky top-[132px] z-20 bg-surface/95 backdrop-blur-sm py-3 px-margin-mobile md:px-margin-desktop overflow-x-auto scrollbar-hide">
+      <div className="sticky top-[132px] z-20 bg-surface border-b border-outline-variant/10 py-3 px-margin-mobile md:px-margin-desktop overflow-x-auto scrollbar-hide">
         <div className="max-w-container mx-auto flex gap-2">
           {filterPills.map((pill) => (
             <button

@@ -19,7 +19,7 @@ export default function Navbar({ logoUrl }: { logoUrl?: string }) {
   const whatsappHref = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}`;
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(50,23,22,0.08)]">
+    <header className="fixed top-0 w-full z-50 bg-surface shadow-[0_4px_20px_-10px_rgba(50,23,22,0.08)]">
       <nav className="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container mx-auto">
         <Link
           href={ROUTES.HOME}
