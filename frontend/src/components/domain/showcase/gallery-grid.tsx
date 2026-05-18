@@ -162,11 +162,9 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
             <option value="nameAz">{showcaseContent.sort.nameAz}</option>
           </select>
         </div>
-      </div>
 
-      {/* Filter pills */}
-      <div className="sticky top-[132px] z-20 bg-surface border-b border-outline-variant/10 py-3 px-margin-mobile md:px-margin-desktop overflow-x-auto scrollbar-hide">
-        <div className="max-w-container mx-auto flex gap-2">
+        {/* Filter pills — inside same sticky container */}
+        <div className="max-w-container mx-auto flex gap-2 mt-3 overflow-x-auto scrollbar-hide">
           {filterPills.map((pill) => (
             <button
               key={pill.value}
