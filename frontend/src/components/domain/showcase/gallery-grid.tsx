@@ -25,7 +25,7 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
   const [sheetSize, setSheetSize] = useState("");
   const [sheetQuantity, setSheetQuantity] = useState(1);
 
-  const { basket, addCatalogItem, totalItems } = useQuoteBasket();
+  const { basket, addCatalogItem, removeCatalogItem, totalItems } = useQuoteBasket();
 
   // Build filter pills from categories + popular filter values
   const filterPills = useMemo(() => {
@@ -104,6 +104,11 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
     addCatalogItem({ ...item, notes: "" });
     toast.success(`${item.productName} added to basket`);
   }, [addCatalogItem]);
+
+  const handleRemove = useCallback((productId: number, productName: string) => {
+    removeCatalogItem(productId, "");
+    toast.success(`${productName} removed from basket`);
+  }, [removeCatalogItem]);
 
   const handleSheetAdd = () => {
     if (!sheetProduct) return;
@@ -192,6 +197,7 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
                   product={product}
                   isInBasket={basketProductIds.has(product.id)}
                   onAdd={handleAdd}
+                  onRemove={handleRemove}
                   onOpenSheet={openSheet}
                 />
               </div>

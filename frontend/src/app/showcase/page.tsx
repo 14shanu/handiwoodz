@@ -2,6 +2,7 @@ import { getCategories } from "@/lib/api";
 import { generatePageMetadata } from "@/lib/utils/seo";
 import { GalleryGrid } from "@/components/domain/showcase";
 import { Product } from "@/lib/types";
+import { strapiGet, API } from "@/lib/api/strapi";
 
 export const metadata = generatePageMetadata({
   title: "Showcase | Handiwoodz",
@@ -12,7 +13,6 @@ export const metadata = generatePageMetadata({
 
 async function getAllProducts(): Promise<Product[]> {
   try {
-    const { strapiGet, API } = await import("@/lib/api/strapi");
     return await strapiGet<Product>(API.PRODUCTS, { populate: "*" });
   } catch {
     const { MOCK_FEATURED_PRODUCTS, MOCK_SUBCATEGORY_PRODUCTS } = await import("@/lib/data/mock");

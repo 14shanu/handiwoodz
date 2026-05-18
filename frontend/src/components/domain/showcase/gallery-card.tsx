@@ -9,10 +9,11 @@ interface GalleryCardProps {
   product: Product;
   isInBasket: boolean;
   onAdd: (item: Omit<QuoteBasketItem, "notes">) => void;
+  onRemove: (productId: number, productName: string) => void;
   onOpenSheet: (product: Product) => void;
 }
 
-export default function GalleryCard({ product, isInBasket, onAdd, onOpenSheet }: GalleryCardProps) {
+export default function GalleryCard({ product, isInBasket, onAdd, onRemove, onOpenSheet }: GalleryCardProps) {
   const [selectedSize, setSelectedSize] = useState(product.sizeOptions?.[0] || "");
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
@@ -31,6 +32,11 @@ export default function GalleryCard({ product, isInBasket, onAdd, onOpenSheet }:
     });
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 1500);
+  };
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onRemove(product.id, product.name);
   };
 
   const handleCardClick = () => {
@@ -54,11 +60,15 @@ export default function GalleryCard({ product, isInBasket, onAdd, onOpenSheet }:
         loading="lazy"
       />
 
-      {/* Added badge */}
+      {/* Added badge — click to remove */}
       {isInBasket && !justAdded && (
-        <div className="absolute top-3 right-3 w-6 h-6 bg-secondary rounded-full flex items-center justify-center z-10 shadow-md">
+        <button
+          onClick={handleRemove}
+          className="absolute top-3 right-3 w-7 h-7 bg-secondary rounded-full flex items-center justify-center z-10 shadow-md hover:bg-error hover:scale-110 transition-all"
+          aria-label={`Remove ${product.name} from basket`}
+        >
           <span className="text-on-secondary text-xs">✓</span>
-        </div>
+        </button>
       )}
 
       {/* Just added feedback */}
@@ -93,7 +103,7 @@ export default function GalleryCard({ product, isInBasket, onAdd, onOpenSheet }:
           </div>
         )}
 
-        {/* Quantity + Add */}
+        {/* Quantity + Add/Remove */}
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-white/10 rounded-full">
             <button
@@ -110,12 +120,21 @@ export default function GalleryCard({ product, isInBasket, onAdd, onOpenSheet }:
               +
             </button>
           </div>
-          <button
-            onClick={handleAdd}
-            className="flex-1 py-1.5 bg-secondary text-white text-[11px] font-body rounded-full hover:bg-secondary/90 transition-colors"
-          >
-            {justAdded ? showcaseContent.card.added : showcaseContent.card.addToQuote}
-          </button>
+          {isInBasket ? (
+            <button
+              onClick={handleRemove}
+              className="flex-1 py-1.5 bg-error/80 text-white text-[11px] font-body rounded-full hover:bg-error transition-colors"
+            >
+              Remove
+            </button>
+          ) : (
+            <button
+              onClick={handleAdd}
+              className="flex-1 py-1.5 bg-secondary text-white text-[11px] font-body rounded-full hover:bg-secondary/90 transition-colors"
+            >
+              {justAdded ? showcaseContent.card.added : showcaseContent.card.addToQuote}
+            </button>
+          )}
         </div>
       </div>
     </div>

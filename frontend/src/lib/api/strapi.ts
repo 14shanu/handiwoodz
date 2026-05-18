@@ -4,23 +4,41 @@ export async function strapiGet<T>(
   endpoint: string,
   params?: Record<string, string>
 ): Promise<T[]> {
-  const url = new URL(endpoint);
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      url.searchParams.set(key, value);
+  const allData: T[] = [];
+  let page = 1;
+  let pageCount = 1;
+
+  do {
+    const url = new URL(endpoint);
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.set(key, value);
+      });
+    }
+
+    // Only override pagination if not explicitly set by caller
+    if (!params?.["pagination[pageSize]"]) {
+      url.searchParams.set("pagination[pageSize]", "100");
+    }
+    url.searchParams.set("pagination[page]", String(page));
+
+    const res = await fetch(url.toString(), {
+      next: { revalidate: API.REVALIDATE },
     });
-  }
 
-  const res = await fetch(url.toString(), {
-    next: { revalidate: API.REVALIDATE },
-  });
+    if (!res.ok) {
+      throw new Error(`Strapi error: ${res.status} ${res.statusText}`);
+    }
 
-  if (!res.ok) {
-    throw new Error(`Strapi error: ${res.status} ${res.statusText}`);
-  }
+    const json = await res.json();
+    const data = json.data as T[];
+    allData.push(...data);
 
-  const json = await res.json();
-  return json.data as T[];
+    pageCount = json.meta?.pagination?.pageCount || 1;
+    page++;
+  } while (page <= pageCount);
+
+  return allData;
 }
 
 export async function strapiGetOne<T>(
