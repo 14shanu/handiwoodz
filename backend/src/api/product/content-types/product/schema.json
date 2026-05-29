@@ -48,6 +48,11 @@
     "featured": {
       "type": "boolean",
       "default": false
+    },
+    "cloudinaryPublicId": {
+      "type": "string",
+      "unique": true,
+      "private": true
     }
   }
 }
