@@ -7,7 +7,14 @@ export const API = {
   PRODUCTS: `${API_BASE_URL}/api/products`,
   QUOTE_REQUESTS: `${API_BASE_URL}/api/quote-requests`,
   SITE_SETTINGS: `${API_BASE_URL}/api/site-setting`,
-  REVALIDATE: 3600 as const,
+  REVALIDATE: 86400 as const,
+} as const;
+
+export const CACHE_TAGS = {
+  PRODUCTS: "products",
+  CATEGORIES: "categories",
+  SUBCATEGORIES: "subcategories",
+  SITE_SETTINGS: "site-settings",
 } as const;
 
 export const CLOUDINARY = {

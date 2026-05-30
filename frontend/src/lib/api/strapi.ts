@@ -1,4 +1,12 @@
-import { API } from "@/lib/constants/api";
+import { API, CACHE_TAGS } from "@/lib/constants/api";
+
+function getTagsForEndpoint(endpoint: string): string[] {
+  if (endpoint.includes("/products")) return [CACHE_TAGS.PRODUCTS];
+  if (endpoint.includes("/categories")) return [CACHE_TAGS.CATEGORIES];
+  if (endpoint.includes("/subcategories")) return [CACHE_TAGS.SUBCATEGORIES];
+  if (endpoint.includes("/site-setting")) return [CACHE_TAGS.SITE_SETTINGS];
+  return [];
+}
 
 export async function strapiGet<T>(
   endpoint: string,
@@ -7,6 +15,7 @@ export async function strapiGet<T>(
   const allData: T[] = [];
   let page = 1;
   let pageCount = 1;
+  const tags = getTagsForEndpoint(endpoint);
 
   do {
     const url = new URL(endpoint);
@@ -16,14 +25,13 @@ export async function strapiGet<T>(
       });
     }
 
-    // Only override pagination if not explicitly set by caller
     if (!params?.["pagination[pageSize]"]) {
       url.searchParams.set("pagination[pageSize]", "100");
     }
     url.searchParams.set("pagination[page]", String(page));
 
     const res = await fetch(url.toString(), {
-      next: { revalidate: API.REVALIDATE },
+      next: { revalidate: API.REVALIDATE, tags },
     });
 
     if (!res.ok) {
@@ -52,8 +60,10 @@ export async function strapiGetOne<T>(
     });
   }
 
+  const tags = getTagsForEndpoint(endpoint);
+
   const res = await fetch(url.toString(), {
-    next: { revalidate: API.REVALIDATE },
+    next: { revalidate: API.REVALIDATE, tags },
   });
 
   if (!res.ok) return undefined;
