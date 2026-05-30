@@ -1,0 +1,44 @@
+name: Catalog Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      action:
+        description: "Sync action"
+        required: true
+        type: choice
+        options:
+          - sync
+          - publish-all
+          - delete-products
+
+jobs:
+  sync:
+    name: Run Catalog Sync
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Trigger catalog sync
+        run: |
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.API_URL }}/api/catalog-sync?action=${{ inputs.action }}" \
+            -H "x-sync-secret: ${{ secrets.CLOUDINARY_SYNC_SECRET }}")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          
+          echo "Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Sync request failed"
+            exit 1
+          fi
