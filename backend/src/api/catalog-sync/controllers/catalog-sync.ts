@@ -15,6 +15,36 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return ctx.throw(401, 'Invalid sync secret');
     }
 
+    const action = ctx.query.action as string | undefined;
+
+    // Publish all draft products
+    if (action === 'publish-all') {
+      const drafts = await strapi.documents('api::product.product').findMany({
+        filters: { publishedAt: { $null: true } },
+        limit: 10000,
+      });
+
+      let published = 0;
+      let errors = 0;
+
+      for (const product of drafts) {
+        try {
+          await strapi.documents('api::product.product').publish({
+            documentId: product.documentId,
+          });
+          published++;
+        } catch {
+          errors++;
+        }
+      }
+
+      ctx.body = {
+        message: `Published ${published} products (${errors} errors, ${drafts.length} total drafts found)`,
+      };
+      return;
+    }
+
+    // Default: run catalog sync
     const runInBackground = ctx.query.background !== 'false';
 
     if (runInBackground) {
@@ -38,7 +68,6 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       return;
     }
 
-    // Foreground (blocking) — useful for testing
     const result = await syncCatalogFromCloudinary(strapi);
     ctx.body = { message: 'Catalog sync complete', result };
   },
