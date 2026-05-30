@@ -17,29 +17,33 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     const action = ctx.query.action as string | undefined;
 
-    // Publish all draft products
+    // Publish all draft products (bulk DB update — fast)
     if (action === 'publish-all') {
-      const drafts = await strapi.documents('api::product.product').findMany({
-        filters: { publishedAt: { $null: true } },
-        limit: 10000,
+      const result = await strapi.db.query('api::product.product').updateMany({
+        where: { publishedAt: null },
+        data: { publishedAt: new Date() },
       });
 
-      let published = 0;
-      let errors = 0;
-
-      for (const product of drafts) {
+      // Trigger single revalidation at the end
+      const frontendUrl = process.env.FRONTEND_URL;
+      const revalidationSecret = process.env.REVALIDATION_SECRET;
+      if (frontendUrl && revalidationSecret) {
         try {
-          await strapi.documents('api::product.product').publish({
-            documentId: product.documentId,
+          await fetch(`${frontendUrl}/api/revalidate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-revalidation-secret': revalidationSecret,
+            },
+            body: JSON.stringify({ tag: 'products' }),
           });
-          published++;
         } catch {
-          errors++;
+          strapi.log.warn('Revalidation after publish-all failed');
         }
       }
 
       ctx.body = {
-        message: `Published ${published} products (${errors} errors, ${drafts.length} total drafts found)`,
+        message: `Bulk published ${result.count} products`,
       };
       return;
     }
