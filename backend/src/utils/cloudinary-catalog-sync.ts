@@ -255,7 +255,8 @@ export async function syncCatalogFromCloudinary(
       const files = await getFilesInFolder(subFolder.path);
       const sizeOptions = detectSizeFromFolder(subFolder.name);
 
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         activePublicIds.add(file.public_id);
 
         // Check if product already exists with this cloudinaryPublicId
@@ -269,7 +270,7 @@ export async function syncCatalogFromCloudinary(
           continue;
         }
 
-        // Create new product as draft
+        // Create new product as published
         try {
           const productName = cleanProductName(file.public_id, subcategoryName);
           const productSlug = generateSlug(`${productName}-${file.public_id.split('/').pop()?.replace(/_[a-z0-9]{6}$/, '') || ''}`);
@@ -289,13 +290,19 @@ export async function syncCatalogFromCloudinary(
               cloudinaryPublicId: file.public_id,
               ...(mediaId && { images: [mediaId] }),
             },
-            status: 'draft',
+            status: 'published',
           });
 
           result.products.created++;
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
           result.errors.push(`Product "${file.public_id}": ${msg}`);
+        }
+
+        // Prevent DB connection pool exhaustion — pause every 50 products
+        if ((i + 1) % 50 === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          strapi.log.info(`Catalog sync progress: ${result.products.created + result.products.skipped} / ${files.length} in ${subcategoryName}`);
         }
       }
     }

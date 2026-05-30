@@ -17,6 +17,16 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
 
     const action = ctx.query.action as string | undefined;
 
+    // Delete all products (clean slate before re-sync)
+    if (action === 'delete-products') {
+      const deleted = await strapi.db.query('api::product.product').deleteMany({
+        where: {},
+      });
+
+      ctx.body = { message: `Deleted ${deleted.count} products` };
+      return;
+    }
+
     // Publish all draft products (bulk DB update — fast)
     if (action === 'publish-all') {
       const result = await strapi.db.query('api::product.product').updateMany({
