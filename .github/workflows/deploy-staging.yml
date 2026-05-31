@@ -20,12 +20,12 @@ jobs:
 
       - name: Health check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.STAGING_API_URL }}/api/categories")
-          if [ "$STATUS" != "200" ]; then
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.STAGING_API_URL }}/_health")
+          if [ "$STATUS" != "200" ] && [ "$STATUS" != "204" ]; then
             echo "Health check failed with status $STATUS"
             exit 1
           fi
-          echo "Health check passed"
+          echo "Health check passed with status $STATUS"
 
   deploy-frontend:
     name: Deploy Frontend to Staging
