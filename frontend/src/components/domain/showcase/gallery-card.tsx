@@ -60,26 +60,29 @@ export default function GalleryCard({ product, isInBasket, onAdd, onRemove, onOp
         loading="lazy"
       />
 
-      {/* Added badge — click to remove */}
+      {/* In-basket badge — tap to remove */}
       {isInBasket && !justAdded && (
         <button
           onClick={handleRemove}
-          className="absolute top-3 right-3 w-7 h-7 bg-secondary rounded-full flex items-center justify-center z-10 shadow-md hover:bg-error hover:scale-110 transition-all"
+          className="absolute top-2 right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center z-10 shadow-lg group/badge hover:bg-error transition-colors"
           aria-label={`Remove ${product.name} from basket`}
         >
-          <span className="text-on-secondary text-xs">✓</span>
+          <span className="text-on-secondary text-sm group-hover/badge:hidden">✓</span>
+          <span className="text-white text-sm hidden group-hover/badge:block">✕</span>
         </button>
       )}
 
       {/* Just added feedback */}
       {justAdded && (
-        <div className="absolute inset-0 bg-secondary/20 flex items-center justify-center z-20 animate-pulse">
-          <span className="text-secondary text-4xl">✓</span>
+        <div className="absolute inset-0 bg-secondary/30 flex items-center justify-center z-20 pointer-events-none">
+          <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center shadow-lg">
+            <span className="text-on-secondary text-xl">✓</span>
+          </div>
         </div>
       )}
 
       {/* Hover overlay (desktop only) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex flex-col justify-end p-4">
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex flex-col justify-end p-4">
         <p className="text-white font-display text-sm mb-3 line-clamp-1">
           {product.name}
         </p>
@@ -103,36 +106,38 @@ export default function GalleryCard({ product, isInBasket, onAdd, onRemove, onOp
           </div>
         )}
 
-        {/* Quantity + Add/Remove */}
+        {/* Quantity + Action */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-white/10 rounded-full">
-            <button
-              onClick={(e) => { e.stopPropagation(); setQuantity(Math.max(1, quantity - 1)); }}
-              className="w-6 h-6 flex items-center justify-center text-white/80 hover:text-white text-xs"
-            >
-              −
-            </button>
-            <span className="text-white text-xs w-5 text-center">{quantity}</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); setQuantity(quantity + 1); }}
-              className="w-6 h-6 flex items-center justify-center text-white/80 hover:text-white text-xs"
-            >
-              +
-            </button>
-          </div>
+          {!isInBasket && (
+            <div className="flex items-center bg-white/10 rounded-full">
+              <button
+                onClick={(e) => { e.stopPropagation(); setQuantity(Math.max(1, quantity - 1)); }}
+                className="w-6 h-6 flex items-center justify-center text-white/80 hover:text-white text-xs"
+              >
+                −
+              </button>
+              <span className="text-white text-xs w-5 text-center">{quantity}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); setQuantity(quantity + 1); }}
+                className="w-6 h-6 flex items-center justify-center text-white/80 hover:text-white text-xs"
+              >
+                +
+              </button>
+            </div>
+          )}
           {isInBasket ? (
             <button
               onClick={handleRemove}
-              className="flex-1 py-1.5 bg-error/80 text-white text-[11px] font-body rounded-full hover:bg-error transition-colors"
+              className="flex-1 py-1.5 bg-white/20 text-white text-[11px] font-body rounded-full hover:bg-error/80 transition-colors border border-white/20"
             >
-              Remove
+              ✕ Remove
             </button>
           ) : (
             <button
               onClick={handleAdd}
               className="flex-1 py-1.5 bg-secondary text-white text-[11px] font-body rounded-full hover:bg-secondary/90 transition-colors"
             >
-              {justAdded ? showcaseContent.card.added : showcaseContent.card.addToQuote}
+              {showcaseContent.card.addToQuote}
             </button>
           )}
         </div>

@@ -25,7 +25,7 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
   const [sheetSize, setSheetSize] = useState("");
   const [sheetQuantity, setSheetQuantity] = useState(1);
 
-  const { basket, addCatalogItem, removeCatalogItem, totalItems } = useQuoteBasket();
+  const { basket, addCatalogItem, removeCatalogItemById, totalItems } = useQuoteBasket();
 
   // Build filter pills from categories + popular filter values
   const filterPills = useMemo(() => {
@@ -106,9 +106,9 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
   }, [addCatalogItem]);
 
   const handleRemove = useCallback((productId: number, productName: string) => {
-    removeCatalogItem(productId, "");
+    removeCatalogItemById(productId);
     toast.success(`${productName} removed from basket`);
-  }, [removeCatalogItem]);
+  }, [removeCatalogItemById]);
 
   const handleSheetAdd = () => {
     if (!sheetProduct) return;
@@ -312,13 +312,26 @@ export default function GalleryGrid({ products, categories }: GalleryGridProps) 
               </div>
             </div>
 
-            {/* Add button */}
-            <button
-              onClick={handleSheetAdd}
-              className="w-full py-4 bg-secondary text-on-secondary rounded-lg font-body text-label-md uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
-            >
-              {showcaseContent.card.addToQuote}
-            </button>
+            {/* Add/Remove button */}
+            {basketProductIds.has(sheetProduct.id) ? (
+              <button
+                onClick={() => {
+                  removeCatalogItemById(sheetProduct.id);
+                  toast.success(`${sheetProduct.name} removed from basket`);
+                  setSheetProduct(null);
+                }}
+                className="w-full py-4 bg-surface-container-high text-error rounded-lg font-body text-label-md uppercase tracking-widest border border-error/20 active:scale-95 transition-transform"
+              >
+                ✕ Remove from Basket
+              </button>
+            ) : (
+              <button
+                onClick={handleSheetAdd}
+                className="w-full py-4 bg-secondary text-on-secondary rounded-lg font-body text-label-md uppercase tracking-widest shadow-lg active:scale-95 transition-transform"
+              >
+                {showcaseContent.card.addToQuote}
+              </button>
+            )}
           </div>
         </div>
       )}
