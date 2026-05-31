@@ -1,0 +1,80 @@
+services:
+  - type: web
+    name: handiwoodz-staging
+    runtime: node
+    region: oregon
+    plan: free
+    branch: develop
+    rootDir: backend
+    buildFilter:
+      paths:
+        - backend/**
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /_health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_JWT_SECRET
+        sync: false
+      - key: API_TOKEN_SALT
+        sync: false
+      - key: APP_KEYS
+        sync: false
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET
+        sync: false
+      - key: CLOUDINARY_SYNC_SECRET
+        sync: false
+      - key: REVALIDATION_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://handiwoodz-git-develop-14shanus-projects.vercel.app
+
+  - type: web
+    name: handiwoodz-prod
+    runtime: node
+    region: oregon
+    plan: free
+    branch: main
+    rootDir: backend
+    buildFilter:
+      paths:
+        - backend/**
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /_health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_JWT_SECRET
+        sync: false
+      - key: API_TOKEN_SALT
+        sync: false
+      - key: APP_KEYS
+        sync: false
+      - key: CLOUDINARY_NAME
+        sync: false
+      - key: CLOUDINARY_KEY
+        sync: false
+      - key: CLOUDINARY_SECRET
+        sync: false
+      - key: CLOUDINARY_SYNC_SECRET
+        sync: false
+      - key: REVALIDATION_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://handiwoodz.vercel.app
