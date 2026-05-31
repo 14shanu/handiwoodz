@@ -1,0 +1,50 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          curl -X POST "${{ secrets.RENDER_STAGING_DEPLOY_HOOK }}"
+
+      - name: Wait for deploy
+        run: sleep 60
+
+      - name: Health check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.STAGING_API_URL }}/api/categories")
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed with status $STATUS"
+            exit 1
+          fi
+          echo "Health check passed"
+
+  deploy-frontend:
+    name: Deploy Frontend to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Trigger Vercel Deploy
+        run: |
+          curl -X POST "${{ secrets.VERCEL_STAGING_DEPLOY_HOOK }}"
+
+      - name: Wait for deploy
+        run: sleep 90
+
+      - name: Health check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "${{ secrets.STAGING_FRONTEND_URL }}")
+          if [ "$STATUS" != "200" ]; then
+            echo "Frontend health check failed with status $STATUS"
+            exit 1
+          fi
+          echo "Frontend health check passed"

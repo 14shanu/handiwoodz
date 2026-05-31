@@ -75,6 +75,17 @@ export function useQuoteBasket() {
     });
   }, []);
 
+  const removeCatalogItemById = useCallback((productId: number) => {
+    setBasket((prev) => {
+      const updated = {
+        ...prev,
+        catalogItems: prev.catalogItems.filter((i) => i.productId !== productId),
+      };
+      saveBasket(updated);
+      return updated;
+    });
+  }, []);
+
   const updateCatalogItemQuantity = useCallback(
     (productId: number, selectedSize: string, quantity: number) => {
       setBasket((prev) => {
@@ -124,6 +135,7 @@ export function useQuoteBasket() {
     totalItems,
     addCatalogItem,
     removeCatalogItem,
+    removeCatalogItemById,
     updateCatalogItemQuantity,
     addCustomDesign,
     removeCustomDesign,
