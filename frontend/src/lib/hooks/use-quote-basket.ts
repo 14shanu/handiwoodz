@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { QuoteBasket, QuoteBasketItem, CustomDesignItem } from "@/lib/types";
 
 const STORAGE_KEY = "handiwoodz-quote-basket";
+const BASKET_CHANGE_EVENT = "handiwoodz-basket-change";
 
 const EMPTY_BASKET: QuoteBasket = {
   catalogItems: [],
@@ -23,6 +24,7 @@ function loadBasket(): QuoteBasket {
 function saveBasket(basket: QuoteBasket): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(basket));
+  window.dispatchEvent(new CustomEvent(BASKET_CHANGE_EVENT));
 }
 
 export function useQuoteBasket() {
@@ -32,6 +34,18 @@ export function useQuoteBasket() {
   useEffect(() => {
     setBasket(loadBasket());
     setIsLoaded(true);
+
+    const handleBasketChange = () => {
+      setBasket(loadBasket());
+    };
+
+    window.addEventListener(BASKET_CHANGE_EVENT, handleBasketChange);
+    window.addEventListener("storage", handleBasketChange);
+
+    return () => {
+      window.removeEventListener(BASKET_CHANGE_EVENT, handleBasketChange);
+      window.removeEventListener("storage", handleBasketChange);
+    };
   }, []);
 
   const persist = useCallback((updated: QuoteBasket) => {

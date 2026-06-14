@@ -46,9 +46,9 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: generateOrganizationJsonLd() }}
         />
         <LoadingBar />
-        <Navbar logoUrl={siteSettings.logo?.url} />
-        <div className="pt-20">{children}</div>
-        <Footer logoUrl={siteSettings.logoDark?.url || siteSettings.logo?.url} />
+        <Navbar logoUrl={siteSettings.logo?.url || "/images/logo.png"} />
+        <div className="pt-24">{children}</div>
+        <Footer logoUrl={siteSettings.logoDark?.url || siteSettings.logo?.url || "/images/logo.png"} />
         <WhatsAppFloat />
         <Toaster position="bottom-right" richColors />
       </body>

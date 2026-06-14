@@ -490,6 +490,9 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    cloudinaryPublicId: Schema.Attribute.String &
+      Schema.Attribute.Private &
+      Schema.Attribute.Unique;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -506,9 +509,6 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     shortDescription: Schema.Attribute.Text;
-    cloudinaryPublicId: Schema.Attribute.String &
-      Schema.Attribute.Unique &
-      Schema.Attribute.Private;
     sizeOptions: Schema.Attribute.JSON;
     slug: Schema.Attribute.UID<'name'>;
     subcategory: Schema.Attribute.Relation<

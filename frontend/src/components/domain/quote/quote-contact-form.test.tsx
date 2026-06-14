@@ -63,12 +63,12 @@ describe("QuoteContactForm", () => {
     render(<QuoteContactForm onValidChange={mockOnValidChange} />);
     await user.type(screen.getByLabelText(/Full Name/), "John Doe");
     await user.type(screen.getByLabelText(/Email Address/), "john@test.com");
-    await user.type(screen.getByLabelText(/WhatsApp/), "+91 9876543210");
+    await user.type(screen.getByLabelText(/WhatsApp Number/), "9876543210");
     expect(mockOnValidChange).toHaveBeenCalledWith(
       expect.objectContaining({
         customerName: "John Doe",
         email: "john@test.com",
-        whatsapp: "+91 9876543210",
+        whatsapp: "919876543210",
       })
     );
   });
