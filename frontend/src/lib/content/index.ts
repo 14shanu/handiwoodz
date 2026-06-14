@@ -7,6 +7,7 @@ export { customDesignContent } from "./custom-design";
 export { ourStoryContent } from "./our-story";
 export { wholesaleContent } from "./wholesale";
 export { showcaseContent } from "./showcase";
+export { uiContent } from "./ui";
 
 export type { SharedContent } from "./shared";
 export type { HomepageContent } from "./homepage";
@@ -17,3 +18,4 @@ export type { CustomDesignContent } from "./custom-design";
 export type { OurStoryContent } from "./our-story";
 export type { WholesaleContent } from "./wholesale";
 export type { ShowcaseContent } from "./showcase";
+export type { UiContent } from "./ui";

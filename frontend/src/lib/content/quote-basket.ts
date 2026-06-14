@@ -45,6 +45,9 @@ export const quoteBasketContent = {
 
   editNotes: "Edit Notes",
   removeItem: "Remove",
+  progress: {
+    steps: ["Browse", "Add Items", "Details", "Submit"],
+  },
 } as const;
 
 export type QuoteBasketContent = typeof quoteBasketContent;

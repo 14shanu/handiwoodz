@@ -7,7 +7,7 @@ import { seoContent } from "@/lib/content/seo";
 import { generateOrganizationJsonLd } from "@/lib/utils/seo";
 import { getSiteSettings } from "@/lib/api";
 import { Navbar, Footer, WhatsAppFloat } from "@/components/layout";
-import { LoadingBar } from "@/components/ui";
+import { LoadingBar, BackToTop } from "@/components/ui";
 import { Toaster } from "sonner";
 
 const ebGaramond = EB_Garamond({
@@ -49,6 +49,7 @@ export default async function RootLayout({
         <Navbar logoUrl={siteSettings.logo?.url || "/images/logo.png"} />
         <div className="pt-24">{children}</div>
         <Footer logoUrl={siteSettings.logoDark?.url || siteSettings.logo?.url || "/images/logo.png"} />
+        <BackToTop />
         <WhatsAppFloat />
         <Toaster position="bottom-right" richColors />
       </body>

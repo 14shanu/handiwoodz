@@ -1,3 +1,9 @@
 export { default as Breadcrumb } from "./breadcrumb/breadcrumb";
 export { default as LoadingBar } from "./loading-bar/loading-bar";
 export { default as ImageCarousel } from "./image-carousel/image-carousel";
+export { default as AnimateOnScroll } from "./animate-on-scroll/animate-on-scroll";
+export { default as BackToTop } from "./back-to-top/back-to-top";
+export { default as Skeleton } from "./skeleton/skeleton";
+export { default as ProductCardSkeleton } from "./skeleton/product-card-skeleton";
+export { default as ImageZoom } from "./image-zoom/image-zoom";
+export { default as ShareButton } from "./share-button/share-button";

@@ -20,6 +20,7 @@ export const catalogContent = {
     sizesAvailable: "sizes available",
     noSubcategories: "No subcategories found.",
   },
+  recentlyViewed: "Recently Viewed",
 } as const;
 
 export type CatalogContent = typeof catalogContent;
