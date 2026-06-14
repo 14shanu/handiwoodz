@@ -1,6 +1,7 @@
 import { getCategoriesWithProductImages, getFeaturedProducts, getSiteSettings } from "@/lib/api";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata } from "@/lib/utils/seo";
+import { AnimateOnScroll } from "@/components/ui";
 import {
   HeroSection,
   CategoryCards,
@@ -29,16 +30,24 @@ export default async function HomePage() {
         heroImage={siteSettings.heroImage}
         heroImageMobile={siteSettings.heroImageMobile}
       />
-      <CategoryCards
-        categories={categories}
-        fallbackImage={siteSettings.fallbackCategoryImage}
-      />
-      <FeaturedProducts
-        products={featuredProducts}
-        fallbackImage={siteSettings.fallbackProductImage}
-      />
-      <CustomDesignCta backgroundImage={siteSettings.ctaBackgroundImage} />
-      <TrustSection />
+      <AnimateOnScroll>
+        <CategoryCards
+          categories={categories}
+          fallbackImage={siteSettings.fallbackCategoryImage}
+        />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <FeaturedProducts
+          products={featuredProducts}
+          fallbackImage={siteSettings.fallbackProductImage}
+        />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <CustomDesignCta backgroundImage={siteSettings.ctaBackgroundImage} />
+      </AnimateOnScroll>
+      <AnimateOnScroll>
+        <TrustSection />
+      </AnimateOnScroll>
     </main>
   );
 }

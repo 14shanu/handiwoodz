@@ -8,6 +8,7 @@ import { quoteBasketContent, sharedContent } from "@/lib/content";
 import { useQuoteBasket } from "@/lib/hooks/use-quote-basket";
 import { submitQuoteRequest } from "@/lib/api";
 import { QuoteContactForm } from "@/components/domain/quote";
+import QuoteProgress from "@/components/domain/quote/quote-progress";
 import { QuoteFormData } from "@/lib/schemas";
 
 export default function QuoteBasketPage() {
@@ -48,6 +49,9 @@ export default function QuoteBasketPage() {
   return (
     <main className="pt-12 pb-section-gap">
       <div className="max-w-container mx-auto px-margin-mobile md:px-margin-desktop">
+        {/* Progress Indicator */}
+        <QuoteProgress currentStep={3} />
+
         {/* Header */}
         <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>

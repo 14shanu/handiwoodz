@@ -7,7 +7,7 @@ import { productContent } from "@/lib/content";
 import { sharedContent } from "@/lib/content";
 import { seoContent } from "@/lib/content/seo";
 import { generatePageMetadata, generateProductJsonLd, generateBreadcrumbJsonLd } from "@/lib/utils/seo";
-import { Breadcrumb } from "@/components/ui";
+import { Breadcrumb, ImageZoom, ShareButton } from "@/components/ui";
 import ProductInfoPanel from "@/components/domain/catalog/product-info-panel";
 import Link from "next/link";
 
@@ -87,22 +87,31 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start mt-12">
+      <div className="flex justify-end mt-4">
+        <ShareButton
+          url={`${seoContent.siteUrl}${ROUTES.CATALOG}/${params.category}/${params.subcategory}/${params.product}`}
+          title={product.name}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start mt-6">
         {/* Image Gallery */}
         <div className="lg:col-span-7 space-y-6">
           <div className="relative aspect-square bg-surface-container-low rounded-lg overflow-hidden">
-            {mainImage?.url ? (
-              <Image
-                src={mainImage.url}
-                alt={mainImage.alternativeText || product.name}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 58vw"
-                priority
-              />
-            ) : (
-              <div className="w-full h-full bg-surface-container-high" />
-            )}
+            <ImageZoom className="w-full h-full">
+              {mainImage?.url ? (
+                <Image
+                  src={mainImage.url}
+                  alt={mainImage.alternativeText || product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  priority
+                />
+              ) : (
+                <div className="w-full h-full bg-surface-container-high" />
+              )}
+            </ImageZoom>
           </div>
           {thumbnails.length > 0 && (
             <div className="grid grid-cols-3 gap-4">
