@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { quoteFormSchema, QuoteFormData } from "@/lib/schemas";
 import { quoteBasketContent } from "@/lib/content";
+import { DEFAULT_COUNTRY_CODE } from "@/lib/constants/country-codes";
+import CountryCodeSelect from "@/components/ui/country-code-select/country-code-select";
 
 interface QuoteContactFormProps {
   onValidChange: (data: QuoteFormData | null) => void;
@@ -20,6 +22,7 @@ export default function QuoteContactForm({ onValidChange, disabled }: QuoteConta
     companyName: "",
     generalNotes: "",
   });
+  const [selectedDialCode, setSelectedDialCode] = useState(DEFAULT_COUNTRY_CODE.dial);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof QuoteFormData, boolean>>>({});
 
@@ -40,8 +43,23 @@ export default function QuoteContactForm({ onValidChange, disabled }: QuoteConta
       const error = validateField(field, value);
       setErrors((prev) => ({ ...prev, [field]: error }));
     }
+    // Send full number with dial code for whatsapp
+    const submissionData = {
+      ...updated,
+      whatsapp: field === "whatsapp" || updated.whatsapp
+        ? `${selectedDialCode.replace("+", "")}${updated.whatsapp}`
+        : updated.whatsapp,
+    };
     const result = quoteFormSchema.safeParse(updated);
-    onValidChange(result.success ? result.data : null);
+    onValidChange(result.success ? { ...result.data, whatsapp: `${selectedDialCode.replace("+", "")}${result.data.whatsapp}` } : null);
+  };
+
+  const handleDialCodeChange = (dial: string) => {
+    setSelectedDialCode(dial);
+    if (formData.whatsapp) {
+      const result = quoteFormSchema.safeParse(formData);
+      onValidChange(result.success ? { ...result.data, whatsapp: `${dial.replace("+", "")}${result.data.whatsapp}` } : null);
+    }
   };
 
   const handleBlur = (field: keyof QuoteFormData) => {
@@ -73,7 +91,7 @@ export default function QuoteContactForm({ onValidChange, disabled }: QuoteConta
       onValidChange(null);
       return;
     }
-    onValidChange(result.data);
+    onValidChange({ ...result.data, whatsapp: `${selectedDialCode.replace("+", "")}${result.data.whatsapp}` });
   };
 
   const content = quoteBasketContent.form;
@@ -100,16 +118,32 @@ export default function QuoteContactForm({ onValidChange, disabled }: QuoteConta
         required
         disabled={disabled}
       />
-      <FormField
-        label={`${content.whatsapp}${content.required}`}
-        value={formData.whatsapp}
-        error={errors.whatsapp}
-        onChange={(v) => handleChange("whatsapp", v)}
-        onBlur={() => handleBlur("whatsapp")}
-        type="tel"
-        required
-        disabled={disabled}
-      />
+      <div className="space-y-2">
+        <label htmlFor="whatsapp-number" className="block font-body text-label-md text-on-surface-variant">
+          {`${content.whatsapp}${content.required}`}
+        </label>
+        <div className="flex gap-2">
+          <CountryCodeSelect
+            value={selectedDialCode}
+            onChange={handleDialCodeChange}
+            disabled={disabled}
+          />
+          <input
+            id="whatsapp-number"
+            type="tel"
+            value={formData.whatsapp}
+            onChange={(e) => handleChange("whatsapp", e.target.value)}
+            onBlur={() => handleBlur("whatsapp")}
+            required
+            disabled={disabled}
+            placeholder="9876543210"
+            className={`flex-1 bg-transparent border-b py-2 focus:ring-0 transition-colors font-body text-body-md outline-none disabled:opacity-50 ${
+              errors.whatsapp ? "border-error" : "border-outline-variant focus:border-secondary"
+            }`}
+          />
+        </div>
+        {errors.whatsapp && <p className="text-error font-body text-xs mt-1">{errors.whatsapp}</p>}
+      </div>
       <FormField
         label={content.country}
         value={formData.country || ""}

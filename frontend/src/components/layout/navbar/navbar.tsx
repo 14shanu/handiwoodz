@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ROUTES } from "@/lib/constants";
 import { sharedContent } from "@/lib/content";
+import { useQuoteBasket } from "@/lib/hooks/use-quote-basket";
 
 const navLinks = [
   { label: sharedContent.nav.catalog, href: ROUTES.CATALOG },
@@ -16,20 +17,27 @@ const navLinks = [
 
 export default function Navbar({ logoUrl }: { logoUrl?: string }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { totalItems, isLoaded } = useQuoteBasket();
   const whatsappHref = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""}`;
 
   return (
     <header className="fixed top-0 w-full z-50 bg-surface shadow-[0_4px_20px_-10px_rgba(50,23,22,0.08)]">
-      <nav className="flex justify-between items-center h-20 px-margin-mobile md:px-margin-desktop max-w-container mx-auto">
+      <nav className="flex justify-between items-center h-24 px-margin-mobile md:px-margin-desktop max-w-container mx-auto">
         <Link
           href={ROUTES.HOME}
-          className="font-display text-headline-md text-primary tracking-tight"
+          className="flex flex-col items-center"
         >
           {logoUrl ? (
-            <Image src={logoUrl} alt={sharedContent.siteName} width={160} height={40} className="h-10 w-auto" />
+            <Image src={logoUrl} alt={sharedContent.siteName} width={200} height={80} className="h-[50px] md:h-[60px] w-auto object-contain" />
           ) : (
-            sharedContent.siteName
+            <span className="font-display text-headline-md text-primary tracking-tight">{sharedContent.siteName}</span>
           )}
+          <span className="font-display text-sm md:text-base text-primary tracking-wide">
+            {sharedContent.siteName}
+          </span>
+          <span className="hidden md:block font-body text-[10px] text-on-surface-variant uppercase tracking-[0.2em]">
+            {sharedContent.tagline}
+          </span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -47,10 +55,15 @@ export default function Navbar({ logoUrl }: { logoUrl?: string }) {
         <div className="flex items-center gap-4">
           <Link
             href={ROUTES.QUOTE_BASKET}
-            className="p-2 text-primary hover:bg-surface-container-low rounded-full transition-all active:scale-95"
-            aria-label="Quote Basket"
+            className="relative p-2 text-primary hover:bg-surface-container-low rounded-full transition-all active:scale-95"
+            aria-label={`Quote Basket${isLoaded && totalItems > 0 ? `, ${totalItems} items` : ""}`}
           >
             <QuoteBasketIcon />
+            {isLoaded && totalItems > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-secondary text-on-secondary text-xs font-bold px-1">
+                {totalItems}
+              </span>
+            )}
           </Link>
           <a
             href={whatsappHref}
