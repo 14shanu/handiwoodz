@@ -14,8 +14,8 @@ jest.mock("next/link", () => {
 describe("Navbar", () => {
   it("renders the site name linking to home", () => {
     render(<Navbar />);
-    const logo = screen.getByText(sharedContent.siteName);
-    expect(logo.closest("a")).toHaveAttribute("href", "/");
+    const logos = screen.getAllByText(sharedContent.siteName);
+    expect(logos[0].closest("a")).toHaveAttribute("href", "/");
   });
 
   it("renders all navigation links", () => {
