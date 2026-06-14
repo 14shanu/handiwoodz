@@ -43,13 +43,6 @@ export default function QuoteContactForm({ onValidChange, disabled }: QuoteConta
       const error = validateField(field, value);
       setErrors((prev) => ({ ...prev, [field]: error }));
     }
-    // Send full number with dial code for whatsapp
-    const submissionData = {
-      ...updated,
-      whatsapp: field === "whatsapp" || updated.whatsapp
-        ? `${selectedDialCode.replace("+", "")}${updated.whatsapp}`
-        : updated.whatsapp,
-    };
     const result = quoteFormSchema.safeParse(updated);
     onValidChange(result.success ? { ...result.data, whatsapp: `${selectedDialCode.replace("+", "")}${result.data.whatsapp}` } : null);
   };
